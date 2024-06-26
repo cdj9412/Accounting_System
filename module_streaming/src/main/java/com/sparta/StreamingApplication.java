@@ -7,7 +7,5 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class StreamingApplication {
     public static void main(String[] args) {
         SpringApplication.run(StreamingApplication.class, args);
-        System.out.println("Streaming Application started");
-        System.out.println("test");
     }
 }
