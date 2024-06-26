@@ -1,0 +1,88 @@
+# Java 관련 파일
+*.class
+*.jar
+*.war
+*.ear
+
+# 빌드 디렉토리
+/build/
+/target/
+
+# Gradle 관련 파일
+.gradle
+build/
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# 환경 설정 파일
+.env
+
+# 로그 파일
+/logs
+*.log
+
+# 임시 파일
+tmp/
+temp/
+
+# 시스템 파일
+*.swp
+*.swo
+
+# MacOS 관련 파일
+.DS_Store
+
+# IntelliJ IDEA 관련 파일
+/.idea
+*.iws
+*.iml
+*.ipr
+
+# VS Code 관련 파일
+.vscode/
+
+# Eclipse 관련 파일
+.metadata/
+*.classpath
+*.project
+*.settings/
+
+# NetBeans 관련 파일
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# STS 관련 파일
+.springBeans
+
+# Node.js 관련 파일
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 테스트 결과
+/test-results/
+test-results/
+coverage/
+
+# 기타
+**/.sass-cache/
+**/.grunt/
+**/.nyc_output/
+**/.next/
+**/.nuxt/
+**/.vuepress/
+**/.cache/
+**/.parcel-cache/
+**/.serverless/
+dist/
+
+# YAML 설정 파일 무시
+application.yaml
+
+#HELP.md 파일 무시
+HELP.md

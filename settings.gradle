@@ -1,0 +1,5 @@
+rootProject.name = 'accounting_project'
+include 'module_user'
+include 'module_streaming'
+include 'module_adjustment'
+
