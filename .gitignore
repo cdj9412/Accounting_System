@@ -79,7 +79,6 @@ coverage/
 **/.cache/
 **/.parcel-cache/
 **/.serverless/
-dist/
 
 # YAML 설정 파일 무시
 application.yaml
