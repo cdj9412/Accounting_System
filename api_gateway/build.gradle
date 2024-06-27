@@ -1,0 +1,50 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.1'
+    id 'io.spring.dependency-management' version '1.1.5'
+}
+
+group = 'com.sparta'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    sourceCompatibility = '21'
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "2023.0.2") // spring boot 버전에 맞는 spring cloud 버전 가지고 오기
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+dependencies {
+    // 리액티브 웹 애플리케이션 개발을 위한 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    // 스프링 클라우드 게이트웨이를 사용하기 위한 의존성
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+    // Eureka 클라이언트를 사용하기 위한 의존성
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    // 애플리케이션 모니터링 및 관리 기능 제공
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // 리액터 테스트 지원
+    testImplementation 'io.projectreactor:reactor-test'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+
+test {
+    useJUnitPlatform()
+}
