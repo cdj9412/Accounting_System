@@ -1,79 +1,86 @@
 package com.sparta.service.implement;
 
 import com.sparta.dto.request.LogOutRequestDto;
+import com.sparta.dto.request.SignInRequestDto;
 import com.sparta.dto.request.SignUpRequestDto;
 import com.sparta.dto.response.LogOutResponseDto;
-import com.sparta.dto.response.ResponseDto;
 import com.sparta.dto.response.SignUpResponseDto;
 import com.sparta.entity.UserEntity;
 import com.sparta.jwt.JwtUtil;
 import com.sparta.repository.UserRepository;
 import com.sparta.service.UserService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j(topic = "UserServiceImplement")
 public class UserServiceImplement implements UserService {
     private final UserRepository userRepository;
-    // 암호화 인터페이스
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     // 회원가입
     @Override
-    @Transactional
-    public ResponseEntity<? super SignUpResponseDto> signUp(SignUpRequestDto signUpRequestDto) {
-        try {
-            // id 중복체크
-            String userId = signUpRequestDto.getId();
-            boolean isExistId= userRepository.existsByUserId(userId);
-            if (isExistId) return SignUpResponseDto.duplicateId();
+    public SignUpResponseDto signUp(SignUpRequestDto signUpRequestDto) {
+        // id 중복체크
+        String userId = signUpRequestDto.getId();
+        boolean isExistId= userRepository.existsByUserId(userId);
+        if (isExistId) throw new IllegalStateException("User already exists");
 
-            // 받아온 password 암호화
-            String password = signUpRequestDto.getPassword();
-            String encodedPassword = passwordEncoder.encode(password);
-            signUpRequestDto.setPassword(encodedPassword);
+        // 받아온 password 암호화
+        String password = signUpRequestDto.getPassword();
+        String encodedPassword = passwordEncoder.encode(password);
 
-            UserEntity userEntity = new UserEntity(signUpRequestDto);
-            userRepository.save(userEntity);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
+        UserEntity userEntity = new UserEntity(userId, encodedPassword, signUpRequestDto.getEmail());
+        UserEntity saveUserEntity = userRepository.save(userEntity);
 
-        return SignUpResponseDto.success();
+        return new SignUpResponseDto(saveUserEntity);
+    }
+
+    // 로그인
+    @Override
+    public String login(SignInRequestDto signInRequestDto) {
+        UserEntity user = userRepository.findByUserId(signInRequestDto.getId())
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
+        if(!passwordEncoder.matches(signInRequestDto.getPassword(), user.getPassword()))
+            throw new IllegalStateException("Wrong password");
+
+        // refresh token 발급 및 저장
+        String refreshToken = jwtUtil.createRefreshToken(signInRequestDto.getId());
+        user.refreshTokenReset(refreshToken);
+        userRepository.save(user);
+
+        return jwtUtil.createAccessToken(signInRequestDto.getId());
     }
 
     // 로그아웃
     @Override
-    @Transactional
-    public ResponseEntity<? super LogOutResponseDto> logout(LogOutRequestDto logOutRequestDto) {
-        try {
-            // 이용자 확인
-            String userId = logOutRequestDto.getId();
-            UserEntity existUser = userRepository.findByUserId(userId);
-            if (existUser == null) return LogOutResponseDto.notExistId();
+    public LogOutResponseDto logout(LogOutRequestDto logOutRequestDto) {
+        // 이용자 확인
+        String userId = logOutRequestDto.getId();
+        UserEntity existUser = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid userId"));
 
-            String refreshToken = existUser.getRefreshToken();
-            // refresh token 삭제 후 user 데이터 저장
-            existUser.refreshTokenReset("");
-            userRepository.save(existUser);
+        String refreshToken = existUser.getRefreshToken();
+        // refresh token 삭제 후 user 데이터 저장
+        existUser.refreshTokenReset("");
+        userRepository.save(existUser);
 
-            jwtUtil.invalidateToken(logOutRequestDto.getAccessToken());
-            jwtUtil.invalidateToken(refreshToken);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return ResponseDto.databaseError();
-        }
-        return LogOutResponseDto.success();
+        jwtUtil.invalidateToken(logOutRequestDto.getAccessToken());
+        jwtUtil.invalidateToken(refreshToken);
+
+        return new LogOutResponseDto(userId);
     }
 
-
+    @Override
+    public UserEntity getUserByUserId(String userId) {
+        UserEntity user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+        return user;
+    }
 }
