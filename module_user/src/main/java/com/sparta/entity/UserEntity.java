@@ -30,15 +30,14 @@ public class UserEntity {
     @Column(name = "refresh_token")
     private String refreshToken;
 
-    public UserEntity(SignUpRequestDto signUpRequestDto) {
-        this.userId = signUpRequestDto.getId();
-        this.password = signUpRequestDto.getPassword();
-        this.email = signUpRequestDto.getEmail();
+    public UserEntity(String userId, String password, String email) {
+        this.userId = userId;
+        this.password = password;
+        this.email = email;
         this.socialProvider = "app"; // 일반 가입자로 초기화
         this.role = "ROLE_USER"; // 권한 일단 모두 이용자로 초기화
     }
 
-    @Transactional
     public void refreshTokenReset(String refreshToken) {
         this.refreshToken = refreshToken;
     }

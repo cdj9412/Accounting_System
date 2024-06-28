@@ -21,8 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class JwtUtil {
     // Header KEY 값
     public static final String AUTHORIZATION_HEADER = "Authorization";
-    // 리프레시 헤더 값
-    public static final String REFRESH_HEADER = "RefreshToken";
     // Token 식별자
     public static final String BEAR = "Bearer ";
 
@@ -50,9 +48,9 @@ public class JwtUtil {
         Date expiredDate = new Date(now.getTime() + expiredTime);
 
         JwtBuilder builder = Jwts.builder()
-                .setSubject(subject)
-                .setIssuedAt(now)
-                .setExpiration(expiredDate)
+                .setSubject(subject)        // 이용자 id
+                .setIssuedAt(now)           // 발급일
+                .setExpiration(expiredDate) // 만료일
                 .signWith(key, SignatureAlgorithm.HS256);
 
         return BEAR + builder.compact();
@@ -92,7 +90,7 @@ public class JwtUtil {
     // 토큰 검증 공통 로직
     private boolean validateTokenInternal(String token) {
         if (isTokenBlacklisted(token)) {
-            throw new IllegalArgumentException("이미 로그아웃된 토큰입니다.");
+            throw new IllegalArgumentException("이미 로그아웃된 토큰.");
         }
 
         try {
@@ -102,19 +100,19 @@ public class JwtUtil {
                     .parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException | SignatureException e) {
-            log.error("Invalid JWT signature, 유효하지 않은 JWT 서명 입니다.", e);
+            log.error("Invalid JWT signature, 유효하지 않은 JWT 서명.", e);
             throw e;
         } catch (ExpiredJwtException e) {
-            log.error("Expired JWT token, 만료된 JWT token 입니다.", e);
+            log.error("Expired JWT token, 만료된 JWT token.", e);
             throw e;
         } catch (UnsupportedJwtException e) {
-            log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.", e);
+            log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰.", e);
             throw e;
         } catch (IllegalArgumentException e) {
-            log.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.", e);
+            log.error("JWT claims is empty, 잘못된 JWT 토큰.", e);
             throw e;
         } catch (Exception e){
-            log.error("잘못되었습니다.", e);
+            log.error("시스템 오류", e);
             throw e;
         }
     }
