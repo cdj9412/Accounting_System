@@ -1,16 +1,12 @@
 package com.sparta.security;
 
 import com.sparta.jwt.JwtUtil;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,14 +15,11 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
-import java.util.Date;
-
 @Slf4j(topic = "JwtAuthorizationFilter_검증 및 인가")
 @RequiredArgsConstructor
 @Component
 public class JwtAuthorizationFilter implements WebFilter {
     private final JwtUtil jwtUtil;
-    private final UserDetailsServiceImpl userDetailsService;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -35,66 +28,64 @@ public class JwtAuthorizationFilter implements WebFilter {
         if (path.startsWith("/api/user/") ){
             return chain.filter(exchange);
         }
-        String accessToken = jwtUtil.getJwtFromHeader(exchange.getRequest());
+        String accessToken = jwtUtil.resolveToken(exchange.getRequest());
         if (StringUtils.hasText(accessToken)) {
             try {
-                Claims claims = jwtUtil.getClaimsFromToken(accessToken);
-
-                if (claims.getExpiration().before(new Date())) {
-                    return requestNewAccessToken(exchange).flatMap(newAccessToken -> {
-                        if (newAccessToken != null) {
-                            String userId = jwtUtil.getClaimsFromToken(newAccessToken).getSubject();
-                            return setAuthentication(userId).then(chain.filter(exchange));
-                        } else {
-                            return handleTokenExpirationError(exchange);
-                        }
-                    });
-                } else {
-                    return setAuthentication(accessToken).then(chain.filter(exchange));
+                if(jwtUtil.validateToken(accessToken)) {
+                    log.info("JWT 토큰이 유효합니다. 기존 토큰을 사용하여 인증을 설정합니다.");
+                    jwtUtil.setAuthentication(accessToken);
+                    return mutateExchangeWithTokenAndUserId(exchange, chain, accessToken);
                 }
-
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                return handleUnauthorizedError(exchange);
+                else {
+                    log.info("JWT 토큰이 만료되었습니다. 새로운 토큰을 요청합니다.");
+                    Mono<String> result = requestNewAccessToken(exchange);
+                    return result.flatMap(newAccessToken -> {
+                       if(newAccessToken != null) {
+                           jwtUtil.setAuthentication(newAccessToken);
+                           return mutateExchangeWithTokenAndUserId(exchange, chain, newAccessToken);
+                       }
+                       else{
+                           return handleUnauthorizedError(exchange);
+                       }
+                    });
+                }
+            }
+            catch (Exception e) {
+                log.error("JWT 토큰이 유효하지 않음"); ;
+                return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap("{\"error\": \"유효하지 않은 액세스 토큰.\"}".getBytes())));
             }
         }
         return chain.filter(exchange);
     }
 
+    private Mono<Void> mutateExchangeWithTokenAndUserId(ServerWebExchange exchange, WebFilterChain chain, String accessToken) {
+        String userId = jwtUtil.getUserIdFromToken(accessToken); // JWT 토큰에서 userId를 추출하는 메서드
+
+        ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
+                .header("userId", userId)
+                .build();
+
+        ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
+        return chain.filter(mutatedExchange);
+    }
+
     private Mono<String> requestNewAccessToken(ServerWebExchange exchange) {
-        return WebClient.create()
-                .post()
+        String userId = exchange.getRequest().getHeaders().getFirst("userId");
+
+        return WebClient.builder().build().post()
                 .uri("http://localhost:8080/api/user/refresh")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtUtil.getJwtFromHeader(exchange.getRequest()))
+                .header("userId", userId)
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), response -> Mono.empty())
                 .bodyToMono(String.class)
-                .onErrorResume(e -> {
-                    log.error(e.getMessage());
-                    return Mono.empty();
-                });
-    }
-
-    private Mono<Void> setAuthentication(String user_id) {
-        return Mono.defer(() -> {
-            Authentication authentication = createAuthentication(user_id);
-            return Mono.fromRunnable(()->ReactiveSecurityContextHolder.withAuthentication(authentication));
-        });
-    }
-
-    private Authentication createAuthentication(String user_id) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(user_id);
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-    }
-
-    private Mono<Void> handleTokenExpirationError(ServerWebExchange exchange) {
-        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap("{\"error\": \"Token expired\"}".getBytes())));
+                .doOnError(e -> log.error("Token renewal request failed: {}", e.getMessage()));
     }
 
     private Mono<Void> handleUnauthorizedError(ServerWebExchange exchange) {
+        log.error("JWT 토큰이 유효하지 않습니다.");
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
         return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap("{\"error\": \"유효하지 않은 액세스 토큰.\"}".getBytes())));
     }
 }

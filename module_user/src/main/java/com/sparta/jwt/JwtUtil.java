@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,8 +25,8 @@ public class JwtUtil {
     // Token 식별자
     public static final String BEAR = "Bearer ";
 
-    // 토큰 만료시간 (30분)
-    private static final long TOKEN_TIME = 30 * 60 * 1000L;
+    // 토큰 만료시간 (30분) / 테스트용 150초
+    private static final long TOKEN_TIME = 150 * 1000L;//30 * 60 * 1000L;
     // 리프레시 토큰 만료시간 (7일)
     private static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000L;
     //로그아웃 토큰 블랙리스트
@@ -43,7 +44,7 @@ public class JwtUtil {
     }
 
     // 토큰 생성 공통 로직
-    private String createToken(String subject, long expiredTime) {
+    private String createToken(String subject, long expiredTime, List<String> roles) {
         Date now = new Date();
         Date expiredDate = new Date(now.getTime() + expiredTime);
 
@@ -53,17 +54,21 @@ public class JwtUtil {
                 .setExpiration(expiredDate) // 만료일
                 .signWith(key, SignatureAlgorithm.HS256);
 
+        if (roles != null && !roles.isEmpty()) {
+            builder.claim("roles", roles); // "roles"라는 이름으로 역할 정보 추가
+        }
+
         return BEAR + builder.compact();
     }
 
     // 액세스 토큰 생성
-    public String createAccessToken(String user_id) {
-        return createToken(user_id, TOKEN_TIME);
+    public String createAccessToken(String user_id, List<String> roles) {
+        return createToken(user_id, TOKEN_TIME, roles);
     }
 
     // 리프레시 토큰 생성
-    public String createRefreshToken(String user_id) {
-        String bearerToken =  createToken(user_id, REFRESH_TOKEN_TIME);
+    public String createRefreshToken(String user_id, List<String> roles) {
+        String bearerToken =  createToken(user_id, REFRESH_TOKEN_TIME, roles);
         return bearerToken.substring(7).trim();
     }
 
@@ -133,12 +138,21 @@ public class JwtUtil {
         return claims.getSubject();
     }
 
+    // 리프레시 토큰에서 role 가져오기
+    public List<String> getRolesFromRefreshToken(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        return claims.get("roles", List.class);
+    }
+
     // 리프레시 토큰을 사용하여 새로운 액세스 토큰 발급
     public String refreshAccessToken(String refreshToken) {
         if (validateRefreshToken(refreshToken)) {
             String user_id = getUserIdFromRefreshToken(refreshToken);
+
+            List<String> roles = getRolesFromRefreshToken(refreshToken);
+
             // 여기에서 필요한 경우 사용자 역할 정보를 가져올 수 있다.
-            return createAccessToken(user_id); // 사용자 역할이 필요하면 두 번째 인자에 역할을 전달
+            return createAccessToken(user_id, roles); // 사용자 역할이 필요하면 두 번째 인자에 역할을 전달
         }
         return null;
     }

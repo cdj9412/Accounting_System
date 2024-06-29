@@ -10,9 +10,12 @@ import org.springframework.web.client.RestTemplate;
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
+    private static final String AUTHENTICATION_SERVICE_URL = "http://localhost:8080/api/user/{userId}";
     private RestTemplate restTemplate;
 
-    private static final String AUTHENTICATION_SERVICE_URL = "http://localhost:8080/api/user/{userId}";
+    public UserDetailsServiceImpl(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {

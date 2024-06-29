@@ -12,7 +12,8 @@ import com.sparta.entity.UserEntity;
 import com.sparta.jwt.JwtUtil;
 import com.sparta.repository.UserRepository;
 import com.sparta.service.UserService;
-import jakarta.servlet.http.Cookie;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,11 +21,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,23 +55,21 @@ public class UserController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody SignInRequestDto request, HttpServletResponse response) {
-        String accessToken = userService.login(request);
-        //액세스 토큰 쿠키 설정
-        Cookie accessTokenCookie = new Cookie("accessToken", Base64.getUrlEncoder().encodeToString(accessToken.getBytes()));
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true); // HTTPS 에서만 전송되도록 설정
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(60 * 30); // 30분 유효
-
-        // 응답에 쿠키 추가
-        response.addCookie(accessTokenCookie);
+        Map<String,String> data =userService.login(request);
+        String accessToken = data.get("accessToken");
+        String userId = data.get("userId");
+        log.error("로그인 호출");
+        log.info("Access token: {}", data.get("accessToken"));
+        log.info("user Id: {}", userId);
 
         // 응답 헤더에 액세스 토큰 추가
         HttpHeaders headers = new HttpHeaders();
         headers.add(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+        headers.add("userId", userId);
 
         Map<String, String> tokenInfo = new HashMap<>();
-        tokenInfo.put("access_token", accessToken);
+        tokenInfo.put("accessToken", accessToken);
+        tokenInfo.put("userId", userId);
 
         return ResponseEntity.ok().headers(headers).body(tokenInfo);
     }
@@ -95,19 +94,24 @@ public class UserController {
         return "success";
     }
 
-    // 토큰을 통해 id 제공 - 다른 서비스에서 요청할 데이터
+    // 이용자 Id 통해 새로운 access 토큰 제공 - 다른 서비스에서 요청할 데이터
     @PostMapping("/refresh")
-    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String oldToken) {
+    public String getNewAccessToken(@RequestHeader("userId") String userId) {
         try {
-            // 토큰 갱신 로직을 호출
-            String userId = jwtUtil.getUserIdFromToken(oldToken);
+            log.info("oldToken: {}", userId);
             UserEntity user  = userRepository.findByUserId(userId)
-                    .orElseThrow(() -> new UsernameNotFoundException("User Not Found" + userId));
+                    .orElseThrow(() -> new UsernameNotFoundException("refresh User Not Found" + userId));
+
             String newToken = jwtUtil.refreshAccessToken(user.getRefreshToken());
-            return ResponseEntity.ok(newToken); // 갱신된 토큰을 반환합니다.
-        } catch (Exception e) {
+            log.error("신규 발급 토큰 : {}", newToken);
+            return newToken; // 갱신된 토큰을 반환.
+        }
+        catch (ExpiredJwtException e) {
+            return "expired token";
+        }
+        catch (JwtException | IllegalArgumentException e) {
             // 갱신 실패 시 에러 응답
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token refresh failed");
+            return "Token refresh failed!!!";
         }
     }
 
@@ -118,7 +122,7 @@ public class UserController {
 
 
         // UserDetails 객체로 변환하여 반환
-        return new org.springframework.security.core.userdetails.User(
+        return new User(
                 user.getUserId(),
                 user.getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
