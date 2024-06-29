@@ -15,6 +15,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j(topic = "UserServiceImplement")
@@ -43,7 +47,7 @@ public class UserServiceImplement implements UserService {
 
     // 로그인
     @Override
-    public String login(SignInRequestDto signInRequestDto) {
+    public Map<String,String> login(SignInRequestDto signInRequestDto) {
         UserEntity user = userRepository.findByUserId(signInRequestDto.getId())
                 .orElseThrow(() -> new IllegalStateException("User not found"));
 
@@ -51,11 +55,18 @@ public class UserServiceImplement implements UserService {
             throw new IllegalStateException("Wrong password");
 
         // refresh token 발급 및 저장
-        String refreshToken = jwtUtil.createRefreshToken(signInRequestDto.getId());
+        String refreshToken = jwtUtil.createRefreshToken(signInRequestDto.getId(), Collections.singletonList(user.getRole()));
         user.refreshTokenReset(refreshToken);
         userRepository.save(user);
 
-        return jwtUtil.createAccessToken(signInRequestDto.getId());
+        String accessToken = jwtUtil.createAccessToken(signInRequestDto.getId(), Collections.singletonList(user.getRole()));
+        String userId = signInRequestDto.getId();
+
+        Map<String,String> map = new HashMap<>();
+        map.put("accessToken", accessToken);
+        map.put("userId", userId);
+
+        return map;
     }
 
     // 로그아웃
