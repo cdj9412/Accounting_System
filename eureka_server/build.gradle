@@ -5,7 +5,7 @@ plugins {
 }
 
 springBoot {
-    mainClass = 'com.sparta.StreamingApplication'
+    mainClass = 'com.sparta.EurekaServerApplication'
 }
 
 group = 'com.sparta'
@@ -23,21 +23,11 @@ repositories {
 }
 
 dependencies {
-    //Eureka 클라이언트 등록
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-
-    // JPA 설정
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
-    // MySQL
-    implementation 'com.mysql:mysql-connector-j'
-
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
 }
