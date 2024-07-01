@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface VideoHistoryRepository extends JpaRepository<VideoPlayHistoryEntity, Long> {
+
     @Query("SELECT v.lastPlayTime FROM video_play_history v WHERE v.videoId = :videoId AND v.memberId = :memberId")
     Timestamp findLastPlayTimeByVideoIdAndMemberId(@Param("videoId") Long videoId, @Param("memberId") String memberId);
 
@@ -21,5 +22,11 @@ public interface VideoHistoryRepository extends JpaRepository<VideoPlayHistoryEn
     @Transactional
     @Modifying
     @Query("UPDATE video_play_history v SET v.lastPlayTime = :currentTime WHERE v.videoId = :videoId")
-    void updateLastPlayTime(Long videoId, Timestamp currentTime);
+    void updateLastPlayTime(@Param("videoId") Long videoId, @Param("currentTime") Timestamp currentTime);
+
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE video_play_history v SET v.currentPosition = :stopPoint WHERE v.videoId = :videoId AND v.memberId = :memberId")
+    void updateCurrentPosition(@Param("videoId") Long videoId, @Param("memberId") String memberId, @Param("stopPoint") int stopPoint);
 }

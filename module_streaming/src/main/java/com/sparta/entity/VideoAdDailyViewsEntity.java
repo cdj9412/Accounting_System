@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * 영상의 일일 광고 시청 수를 나타냄
@@ -28,8 +28,15 @@ public class VideoAdDailyViewsEntity {
     private Long adId;
 
     @Column(name = "date", nullable = false)
-    private Date date;
+    private LocalDate date;
 
     @Column(name = "view_count", nullable = false)
     private Long viewCount;
+
+    public VideoAdDailyViewsEntity(Long videoId, Long adId, LocalDate date, Long viewCount) {
+        this.videoId = videoId;
+        this.adId = adId;
+        this.date = date;
+        this.viewCount = viewCount;
+    }
 }

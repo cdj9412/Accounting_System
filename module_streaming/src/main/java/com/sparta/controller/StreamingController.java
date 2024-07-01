@@ -29,6 +29,7 @@ import java.util.Enumeration;
 public class StreamingController {
     private final StreamingService streamingService;
 
+    // header test code
     @PostMapping("/test")
     public String test(HttpServletRequest request) {
         Enumeration<String> headerNames = request.getHeaderNames();
@@ -37,8 +38,6 @@ public class StreamingController {
             String headerValue = request.getHeader(headerName);
             log.info("Header Name: {}, Header Value: {}", headerName, headerValue);
         }
-
-        //Rest Assured
         return "test complete";
     }
 
@@ -73,10 +72,25 @@ public class StreamingController {
         String userId = request.getHeader("userId");
         requestBody.setUserId(userId);
         StopResponseDto stopResponseDto = streamingService.stop(requestBody);
-
         ResponseDto<StopResponseDto> responseDto = new ResponseDto<>();
-        responseDto.setResponseCode(ResponseCode.SUCCESS);
-        responseDto.setResponseMessage(ResponseMessage.SUCCESS);
+
+        switch (stopResponseDto.getResult()) {
+            case SUCCESS: {
+                responseDto.setResponseCode(ResponseCode.SUCCESS);
+                responseDto.setResponseMessage(ResponseMessage.SUCCESS);
+            }
+            break;
+            case CONTENT: {
+                responseDto.setResponseCode(ResponseCode.CONTENT_ERROR);
+                responseDto.setResponseMessage(ResponseMessage.CONTENT_ERROR);
+            }
+            break;
+            case DB: {
+                responseDto.setResponseCode(ResponseCode.DATABASE_ERROR);
+                responseDto.setResponseMessage(ResponseMessage.DATABASE_ERROR);
+            }
+            break;
+        }
         responseDto.setData(stopResponseDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
@@ -89,11 +103,18 @@ public class StreamingController {
         String userId = request.getHeader("userId");
         requestBody.setUserId(userId);
         CompleteResponseDto completeResponseDto = streamingService.complete(requestBody);
-
         ResponseDto<CompleteResponseDto> responseDto = new ResponseDto<>();
-        responseDto.setResponseCode(ResponseCode.SUCCESS);
-        responseDto.setResponseMessage(ResponseMessage.SUCCESS);
-        responseDto.setData(completeResponseDto);
+
+        if(completeResponseDto.isCheckComplete()){
+            responseDto.setResponseCode(ResponseCode.SUCCESS);
+            responseDto.setResponseMessage(ResponseMessage.SUCCESS);
+            responseDto.setData(completeResponseDto);
+        }
+        else {
+            responseDto.setResponseCode(ResponseCode.DATABASE_ERROR);
+            responseDto.setResponseMessage(ResponseMessage.DATABASE_ERROR);
+            responseDto.setData(completeResponseDto);
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }

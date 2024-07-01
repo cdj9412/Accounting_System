@@ -1,6 +1,6 @@
 package com.sparta.repository;
 
-import com.sparta.entity.VideoEntity;
+import com.sparta.entity.AdEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -8,15 +8,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 @Repository
-public interface VideoRepository extends JpaRepository<VideoEntity, Long> {
-    Optional<VideoEntity> findById(Long id);
+public interface AdRepository extends JpaRepository<AdEntity, Long> {
 
     @Transactional
     @Modifying
-    @Query("UPDATE video v SET v.totalViews = v.totalViews + 1 WHERE v.id = :videoId")
-    void incrementTotalViews(@Param("videoId") Long videoId);
-
+    @Query("UPDATE ad a SET a.totalViews = a.totalViews + 1 WHERE a.id = :adId")
+    void incrementTotalViews(@Param("adId") Long adId);
 }
