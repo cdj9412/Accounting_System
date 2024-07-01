@@ -28,7 +28,7 @@ public class VideoEntity {
     private Long totalViews = 0L;
 
     @Column(name = "running_time", nullable = false)
-    private Long runningTime = 0L;
+    private int runningTime = 0;
 
     // VideoPlayHistory 와 일대다 관계
     @OneToMany(mappedBy = "video")

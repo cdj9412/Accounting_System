@@ -16,25 +16,23 @@ import lombok.NoArgsConstructor;
 @Entity(name="video_ad")
 @Table(name="video_ad")
 public class VideoAdEntity {
-    @Id
-    @Column(name = "video_id", nullable = false)
-    private Long videoId;
+    @EmbeddedId
+    private VideoAdId id;
 
-    @Id
-    @Column(name = "ad_id", nullable = false)
-    private Long adId;
+    @ManyToOne
+    @MapsId("videoId")
+    @JoinColumn(name = "video_id")
+    private VideoEntity video;
+
+    @ManyToOne
+    @MapsId("adId")
+    @JoinColumn(name = "ad_id")
+    private AdEntity ad;
 
     @Column(name = "ad_position", nullable = false)
-    private Long adPosition;
+    private int adPosition;
 
     @Column(name = "ad_views", nullable = false)
     private Long adViews = 0L;
 
-    @ManyToOne
-    @JoinColumn(name = "video_id", insertable = false, updatable = false)
-    private VideoEntity video;
-
-    @ManyToOne
-    @JoinColumn(name = "ad_id", insertable = false, updatable = false)
-    private AdEntity ad;
 }

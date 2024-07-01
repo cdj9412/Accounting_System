@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -16,6 +17,6 @@ public interface VideoDailyViewsRepository extends JpaRepository<VideoDailyViews
 
     @Transactional
     @Modifying
-    @Query("UPDATE video_daily_views v SET v.viewCount = v.viewCount + 1 WHERE v.videoId = :videoId AND v.date =: today")
-    void incrementViewCount(Long videoId, LocalDate today);
+    @Query("UPDATE video_daily_views v SET v.viewCount = v.viewCount + 1 WHERE v.videoId = :videoId AND v.date = :date")
+    void incrementViewCount(@Param("videoId") Long videoId, @Param("date") LocalDate date);
 }
