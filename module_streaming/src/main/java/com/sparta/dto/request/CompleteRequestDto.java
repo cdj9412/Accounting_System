@@ -11,4 +11,6 @@ import lombok.Setter;
 public class CompleteRequestDto {
     @NotBlank
     private Long videoId;
+
+    private String userId;
 }

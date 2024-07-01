@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * 'video' 테이블과 매핑
  */
-@Getter // 멤버 getter
+@Getter
 @NoArgsConstructor // 매개변수없는 생성자 자동 생성
 @AllArgsConstructor // 모든 필드에 대한 생성자 생성
 @Entity(name="video")
@@ -21,7 +21,7 @@ public class VideoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "creator_id", length = 255, nullable = false)
+    @Column(name = "creator_id", nullable = false)
     private String creatorId;
 
     @Column(name = "total_views", nullable = false)

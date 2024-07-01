@@ -14,4 +14,6 @@ public class StopRequestDto {
 
     @NotBlank
     private int currentPosition;
+
+    private String userId;
 }

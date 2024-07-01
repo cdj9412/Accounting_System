@@ -14,7 +14,6 @@ import com.sparta.repository.UserRepository;
 import com.sparta.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -54,7 +53,7 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody SignInRequestDto request, HttpServletResponse response) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody SignInRequestDto request) {
         Map<String,String> data =userService.login(request);
         String accessToken = data.get("accessToken");
         String userId = data.get("userId");
@@ -119,7 +118,6 @@ public class UserController {
     public UserDetails getUserInfoByUserId(@PathVariable String userId) {
         // 사용자 정보를 DB 에서 조회
         UserEntity user = userService.getUserByUserId(userId);
-
 
         // UserDetails 객체로 변환하여 반환
         return new User(

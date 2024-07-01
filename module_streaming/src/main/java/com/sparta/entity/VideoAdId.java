@@ -1,5 +1,7 @@
 package com.sparta.entity;
 
+import lombok.Getter;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -7,6 +9,7 @@ import java.util.Objects;
  * 복합 키를 나타내는 클래스
  * VideoAd 엔티티에서 사용
  */
+@Getter
 public class VideoAdId implements Serializable {
     private Long videoId;
     private Long adId;
