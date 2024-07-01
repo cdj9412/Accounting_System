@@ -12,21 +12,21 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j(topic = "JwtUtil")
 @Component
+
 public class JwtUtil {
     // Header KEY 값
     public static final String AUTHORIZATION_HEADER = "Authorization";
-    // 리프레시 헤더 값
-    public static final String REFRESH_HEADER = "RefreshToken";
     // Token 식별자
     public static final String BEAR = "Bearer ";
 
-    // 토큰 만료시간 (30분)
-    private static final long TOKEN_TIME = 30 * 60 * 1000L;
+    // 토큰 만료시간 (30분) / 테스트용 150초
+    private static final long TOKEN_TIME = 150 * 1000L;//30 * 60 * 1000L;
     // 리프레시 토큰 만료시간 (7일)
     private static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000L;
     //로그아웃 토큰 블랙리스트
@@ -44,27 +44,31 @@ public class JwtUtil {
     }
 
     // 토큰 생성 공통 로직
-    private String createToken(String subject, long expiredTime) {
+    private String createToken(String subject, long expiredTime, List<String> roles) {
         Date now = new Date();
         Date expiredDate = new Date(now.getTime() + expiredTime);
 
         JwtBuilder builder = Jwts.builder()
-                .setSubject(subject)
-                .setIssuedAt(now)
-                .setExpiration(expiredDate)
+                .setSubject(subject)        // 이용자 id
+                .setIssuedAt(now)           // 발급일
+                .setExpiration(expiredDate) // 만료일
                 .signWith(key, SignatureAlgorithm.HS256);
+
+        if (roles != null && !roles.isEmpty()) {
+            builder.claim("roles", roles); // "roles"라는 이름으로 역할 정보 추가
+        }
 
         return BEAR + builder.compact();
     }
 
     // 액세스 토큰 생성
-    public String createAccessToken(String user_id) {
-        return createToken(user_id, TOKEN_TIME);
+    public String createAccessToken(String user_id, List<String> roles) {
+        return createToken(user_id, TOKEN_TIME, roles);
     }
 
     // 리프레시 토큰 생성
-    public String createRefreshToken(String user_id) {
-        String bearerToken =  createToken(user_id, REFRESH_TOKEN_TIME);
+    public String createRefreshToken(String user_id, List<String> roles) {
+        String bearerToken =  createToken(user_id, REFRESH_TOKEN_TIME, roles);
         return bearerToken.substring(7).trim();
     }
 
@@ -91,7 +95,7 @@ public class JwtUtil {
     // 토큰 검증 공통 로직
     private boolean validateTokenInternal(String token) {
         if (isTokenBlacklisted(token)) {
-            throw new IllegalArgumentException("이미 로그아웃된 토큰입니다.");
+            throw new IllegalArgumentException("이미 로그아웃된 토큰.");
         }
 
         try {
@@ -101,19 +105,19 @@ public class JwtUtil {
                     .parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException | SignatureException e) {
-            log.error("Invalid JWT signature, 유효하지 않은 JWT 서명 입니다.", e);
+            log.error("Invalid JWT signature, 유효하지 않은 JWT 서명.", e);
             throw e;
         } catch (ExpiredJwtException e) {
-            log.error("Expired JWT token, 만료된 JWT token 입니다.", e);
+            log.error("Expired JWT token, 만료된 JWT token.", e);
             throw e;
         } catch (UnsupportedJwtException e) {
-            log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.", e);
+            log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰.", e);
             throw e;
         } catch (IllegalArgumentException e) {
-            log.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.", e);
+            log.error("JWT claims is empty, 잘못된 JWT 토큰.", e);
             throw e;
         } catch (Exception e){
-            log.error("잘못되었습니다.", e);
+            log.error("시스템 오류", e);
             throw e;
         }
     }
@@ -134,12 +138,21 @@ public class JwtUtil {
         return claims.getSubject();
     }
 
+    // 리프레시 토큰에서 role 가져오기
+    public List<String> getRolesFromRefreshToken(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        return claims.get("roles", List.class);
+    }
+
     // 리프레시 토큰을 사용하여 새로운 액세스 토큰 발급
     public String refreshAccessToken(String refreshToken) {
         if (validateRefreshToken(refreshToken)) {
             String user_id = getUserIdFromRefreshToken(refreshToken);
+
+            List<String> roles = getRolesFromRefreshToken(refreshToken);
+
             // 여기에서 필요한 경우 사용자 역할 정보를 가져올 수 있다.
-            return createAccessToken(user_id); // 사용자 역할이 필요하면 두 번째 인자에 역할을 전달
+            return createAccessToken(user_id, roles); // 사용자 역할이 필요하면 두 번째 인자에 역할을 전달
         }
         return null;
     }

@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.1'
+    id 'io.spring.dependency-management' version '1.1.5'
+}
+
+springBoot {
+    mainClass = 'com.sparta.ApiGatewayApplication'
+}
+
+group = 'com.sparta'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    sourceCompatibility = '21'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // 리액티브 웹 애플리케이션 개발을 위한 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    // 스프링 클라우드 게이트웨이를 사용하기 위한 의존성
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+    // Eureka 클라이언트를 사용하기 위한 의존성
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+    // jwt 의존성 주입
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // spring security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
+}
+
+
+test {
+    useJUnitPlatform()
+}
