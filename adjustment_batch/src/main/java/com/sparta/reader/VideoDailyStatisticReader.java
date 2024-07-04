@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Map;
 
 @Component
@@ -21,7 +22,7 @@ public class VideoDailyStatisticReader {
     @Scope("step")
     public JpaPagingItemReader<VideoDailyStatisticsEntity> dailyStatisticsReader(EntityManagerFactory entityManagerFactory) {
         // 오늘 날짜 가져오기
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
         return new JpaPagingItemReaderBuilder<VideoDailyStatisticsEntity>()
                 .name("videoDailyStatisticsReader")

@@ -17,6 +17,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,7 +107,7 @@ public class StreamingServiceImplement implements StreamingService {
 
     // 일일 조회수 내역 체크 및 조회수 증가
     private void dailyPlayViewsUpdate(Long videoId) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
         // 오늘 날짜 조회수 테이블 데이터 조회
         Optional<VideoDailyViewsEntity> dailyViews = videoDailyViewsRepository.findByVideoIdAndDate(videoId, today);
@@ -207,7 +208,7 @@ public class StreamingServiceImplement implements StreamingService {
 
     // 일일 광고 조회수 내역 체크 및 조회수 증가
     private void dailyPlayAdViewsUpdate(Long videoId, Long adId) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
         // 오늘 날짜 조회수 테이블 데이터 조회
         Optional<VideoAdDailyViewsEntity> dailyAdViews = videoAdDailyViewsRepository.findByVideoIdAndAdIdAndDate(videoId, adId, today);
@@ -228,7 +229,7 @@ public class StreamingServiceImplement implements StreamingService {
 
     // 시청시간 추가
     private void addWatchTime(Long videoId, Long watchTime) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
         videoDailyViewsRepository.incrementWatchTime(videoId, today, watchTime);
     }
 
