@@ -18,6 +18,8 @@ public class GatewayConfig {
                 // 여기에 이어서 서비스 별로 추가
                 .route(r-> r.path("/api/stream/**")
                         .uri("lb://STREAMING-SERVICE"))
+                .route(r-> r.path("/api/adjust/**")
+                        .uri("lb://ADJUSTMENT-SERVICE"))
                 .build();
     }
 }

@@ -47,7 +47,7 @@ public class SecurityConfig {
         http.authorizeExchange(exchange -> exchange
                 .pathMatchers("/api/user/**").permitAll()
                 .pathMatchers("/api/stream/**").permitAll()
-                .pathMatchers("/api/adjustment/**").permitAll()
+                .pathMatchers("/api/adjust/**").permitAll()
                 .anyExchange().authenticated());
 
         // 필터 추가

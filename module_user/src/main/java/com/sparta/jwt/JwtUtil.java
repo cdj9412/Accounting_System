@@ -25,8 +25,8 @@ public class JwtUtil {
     // Token 식별자
     public static final String BEAR = "Bearer ";
 
-    // 토큰 만료시간 (30분) / 테스트용 150초
-    private static final long TOKEN_TIME = 150 * 1000L;//30 * 60 * 1000L;
+    // 토큰 만료시간 (120분) / 테스트용 150초
+    private static final long TOKEN_TIME = 120 * 60 * 1000L;//150 * 1000L;
     // 리프레시 토큰 만료시간 (7일)
     private static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000L;
     //로그아웃 토큰 블랙리스트

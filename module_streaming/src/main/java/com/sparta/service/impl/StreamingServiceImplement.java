@@ -117,7 +117,7 @@ public class StreamingServiceImplement implements StreamingService {
         }
         else {
             // 오늘 날짜 데이터가 없는 경우 신규 생성
-            VideoDailyViewsEntity newEntity = new VideoDailyViewsEntity(videoId, today, 1L);
+            VideoDailyViewsEntity newEntity = new VideoDailyViewsEntity(videoId, today, 1L, 0L);
             videoDailyViewsRepository.save(newEntity); // 저장하여 새로운 엔티티 생성
         }
 
@@ -138,7 +138,7 @@ public class StreamingServiceImplement implements StreamingService {
         Optional<VideoEntity> videoEntity = videoRepository.findById(videoId);
         if(videoEntity.isPresent()) {
             int runningTime = videoEntity.get().getRunningTime();
-            if(runningTime < stopPoint) {
+            if(runningTime < stopPoint || startPoint > stopPoint) {
                 return new StopResponseDto(userId, videoId, stopPoint, StopEnum.CONTENT);
             }
         }
@@ -148,6 +148,9 @@ public class StreamingServiceImplement implements StreamingService {
 
         // 광고 재생 체크 및 조회수 변경
         adViewsUpdate(videoId, startPoint, stopPoint);
+
+        // 시청시간 추가
+        addWatchTime(videoId, (long) (stopPoint - startPoint));
 
         // current_position 변경
         videoHistoryRepository.updateCurrentPosition(videoId, userId, stopPoint);
@@ -172,6 +175,9 @@ public class StreamingServiceImplement implements StreamingService {
 
         // 광고 재생 체크 및 조회수 변경
         adViewsUpdate(videoId, 0, completePoint);
+
+        // 시청시간 추가
+        addWatchTime(videoId, (long) completePoint);
 
         // current_position 변경
         videoHistoryRepository.updateCurrentPosition(videoId, userId, completePoint);
@@ -219,4 +225,11 @@ public class StreamingServiceImplement implements StreamingService {
         // ad 관리 테이블 전체 조회수 증가 처리
         adRepository.incrementTotalViews(adId);
     }
+
+    // 시청시간 추가
+    private void addWatchTime(Long videoId, Long watchTime) {
+        LocalDate today = LocalDate.now();
+        videoDailyViewsRepository.incrementWatchTime(videoId, today, watchTime);
+    }
+
 }
