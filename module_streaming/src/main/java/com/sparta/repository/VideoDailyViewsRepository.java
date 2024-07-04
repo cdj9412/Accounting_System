@@ -19,4 +19,10 @@ public interface VideoDailyViewsRepository extends JpaRepository<VideoDailyViews
     @Modifying
     @Query("UPDATE video_daily_views v SET v.viewCount = v.viewCount + 1 WHERE v.videoId = :videoId AND v.date = :date")
     void incrementViewCount(@Param("videoId") Long videoId, @Param("date") LocalDate date);
+
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE video_daily_views v SET v.watchTime = v.watchTime + :watchTime WHERE v.videoId = :videoId AND v.date = :date")
+    void incrementWatchTime(@Param("videoId") Long videoId, @Param("date") LocalDate date , @Param("watchTime") Long watchTime);
 }

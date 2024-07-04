@@ -4,4 +4,4 @@ include 'module_streaming'
 include 'module_adjustment'
 include 'api_gateway'
 include 'eureka_server'
-
+include 'adjustment_batch'
