@@ -1,70 +1,42 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.0'
+    id 'org.springframework.boot' version '3.3.1'
     id 'io.spring.dependency-management' version '1.1.5'
 }
 
-bootJar.enabled = false // 빌드 시 현재 모듈의 .jar 를 생성하지 않음
-
-repositories {
-    mavenCentral()
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 subprojects { // 모든 하위 모듈들에 이 설정을 적용
-    group = 'com.sparta'
-    version = '0.0.1-SNAPSHOT'
-    sourceCompatibility = '21'
-
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
+    ext {
+        set('springCloudVersion', "2023.0.2") // spring boot 버전에 맞는 spring cloud 버전 가지고 오기
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
         }
     }
 
-    configurations {
-        compileOnly {
-            extendsFrom annotationProcessor
-        }
-    }
-
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies { // 모든 하위 모듈에 추가 될 의존성 목록
-        // JPA 설정
-        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
-        // MySQL
-        implementation 'mysql:mysql-connector-java:8.0.28'
-
+    dependencies { // 공통적으로 하위 모듈에 추가 될 의존성 목록
         //Bean validation
         implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-        // oath2
-        implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-        implementation 'org.springframework.boot:spring-boot-starter-security'
-        testImplementation 'org.springframework.security:spring-security-test'
-
-        // jwt 의존성 주입
-        implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-        runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-        runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
-
-        implementation 'org.springframework.boot:spring-boot-starter-web'
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
-        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
 
     test {
         useJUnitPlatform()
     }
+
 }
