@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j(topic = "JwtUtil")
 @Component
-
 public class JwtUtil {
     // Header KEY 값
     public static final String AUTHORIZATION_HEADER = "Authorization";

@@ -17,6 +17,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,7 +72,7 @@ public class StreamingServiceImplement implements StreamingService {
             return true;
 
         // 2. 기존 시청기록이 30초 이내에 있을 경우
-        Timestamp timestamp = videoHistoryRepository.findLastPlayTimeByVideoIdAndMemberId(videoId, userId);
+        Timestamp timestamp = videoHistoryRepository.findLastPlayTimeByVideoIdAndUserId(videoId, userId);
         if (timestamp != null) {
             Instant now = Instant.now();
             Instant lastPlayTime = timestamp.toInstant();
@@ -85,7 +86,7 @@ public class StreamingServiceImplement implements StreamingService {
 
     // 재생기록 작성
     private void playHistoryUpdate(Long videoId, String userId) {
-        Optional<VideoPlayHistoryEntity> playHistory = videoHistoryRepository.findByVideoIdAndMemberId(videoId, userId);
+        Optional<VideoPlayHistoryEntity> playHistory = videoHistoryRepository.findByVideoIdAndUserId(videoId, userId);
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         if (playHistory.isPresent()) {
             // 이미 재생 기록이 존재하는 경우: last_play_time 업데이트
@@ -99,14 +100,14 @@ public class StreamingServiceImplement implements StreamingService {
 
     // 중간 재생 체크
     private int middlePlayCheck(Long videoId, String userId) {
-        VideoPlayHistoryEntity playHistory = videoHistoryRepository.findByVideoIdAndMemberId(videoId, userId)
+        VideoPlayHistoryEntity playHistory = videoHistoryRepository.findByVideoIdAndUserId(videoId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Video play history not found"));
         return playHistory.getCurrentPosition();
     }
 
     // 일일 조회수 내역 체크 및 조회수 증가
     private void dailyPlayViewsUpdate(Long videoId) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
         // 오늘 날짜 조회수 테이블 데이터 조회
         Optional<VideoDailyViewsEntity> dailyViews = videoDailyViewsRepository.findByVideoIdAndDate(videoId, today);
@@ -207,7 +208,7 @@ public class StreamingServiceImplement implements StreamingService {
 
     // 일일 광고 조회수 내역 체크 및 조회수 증가
     private void dailyPlayAdViewsUpdate(Long videoId, Long adId) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
         // 오늘 날짜 조회수 테이블 데이터 조회
         Optional<VideoAdDailyViewsEntity> dailyAdViews = videoAdDailyViewsRepository.findByVideoIdAndAdIdAndDate(videoId, adId, today);
@@ -228,7 +229,7 @@ public class StreamingServiceImplement implements StreamingService {
 
     // 시청시간 추가
     private void addWatchTime(Long videoId, Long watchTime) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
         videoDailyViewsRepository.incrementWatchTime(videoId, today, watchTime);
     }
 

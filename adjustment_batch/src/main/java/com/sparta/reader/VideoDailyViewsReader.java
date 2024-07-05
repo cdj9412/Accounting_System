@@ -2,7 +2,7 @@ package com.sparta.reader;
 
 import com.sparta.entity.VideoDailyViewsEntity;
 import jakarta.persistence.EntityManagerFactory;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j(topic = "VideoDailyViewsReader")
 public class VideoDailyViewsReader {
     @Bean

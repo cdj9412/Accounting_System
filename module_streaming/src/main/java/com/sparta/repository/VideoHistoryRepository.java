@@ -14,10 +14,10 @@ import java.util.Optional;
 @Repository
 public interface VideoHistoryRepository extends JpaRepository<VideoPlayHistoryEntity, Long> {
 
-    @Query("SELECT v.lastPlayTime FROM video_play_history v WHERE v.videoId = :videoId AND v.memberId = :memberId")
-    Timestamp findLastPlayTimeByVideoIdAndMemberId(@Param("videoId") Long videoId, @Param("memberId") String memberId);
+    @Query("SELECT v.lastPlayTime FROM video_play_history v WHERE v.videoId = :videoId AND v.userId = :userId")
+    Timestamp findLastPlayTimeByVideoIdAndUserId(@Param("videoId") Long videoId, @Param("userId") String userId);
 
-    Optional<VideoPlayHistoryEntity> findByVideoIdAndMemberId(Long videoId, String memberId);
+    Optional<VideoPlayHistoryEntity> findByVideoIdAndUserId(Long videoId, String userId);
 
     @Transactional
     @Modifying
@@ -27,6 +27,6 @@ public interface VideoHistoryRepository extends JpaRepository<VideoPlayHistoryEn
 
     @Transactional
     @Modifying
-    @Query("UPDATE video_play_history v SET v.currentPosition = :stopPoint WHERE v.videoId = :videoId AND v.memberId = :memberId")
-    void updateCurrentPosition(@Param("videoId") Long videoId, @Param("memberId") String memberId, @Param("stopPoint") int stopPoint);
+    @Query("UPDATE video_play_history v SET v.currentPosition = :stopPoint WHERE v.videoId = :videoId AND v.userId = :userId")
+    void updateCurrentPosition(@Param("videoId") Long videoId, @Param("userId") String userId, @Param("stopPoint") int stopPoint);
 }
