@@ -5,7 +5,7 @@ import com.sparta.entity.VideoEntity;
 import com.sparta.repository.VideoAdDailyViewsRepository;
 import com.sparta.repository.VideoDailyViewsRepository;
 import com.sparta.repository.VideoRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -13,13 +13,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Component
 @Slf4j(topic = "UnitPriceCalculator")
 public class UnitPriceCalculator {
-    private VideoRepository videoRepository;
-    private VideoDailyViewsRepository videoDailyViewsRepository;
-    private VideoAdDailyViewsRepository videoAdDailyViewsRepository;
+    private final VideoRepository videoRepository;
+    private final VideoDailyViewsRepository videoDailyViewsRepository;
+    private final VideoAdDailyViewsRepository videoAdDailyViewsRepository;
 
     /**
      * 주어진 비디오 ID와 특정 날짜에 대해 일일 조회수 단가를 계산합니다.

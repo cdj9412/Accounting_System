@@ -5,9 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
 public class TopTimeResponseDto {
     private Long videoId;
-    private Long dailyWatchTime;
+    private Long watchTime;
 }

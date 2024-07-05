@@ -1,7 +1,7 @@
-package com.sparta.processor.daily;
+package com.sparta.processor;
 
 import com.sparta.entity.VideoDailyViewsEntity;
-import com.sparta.entity.daily.VideoDailyStatisticsEntity;
+import com.sparta.entity.VideoDailyStatisticsEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;

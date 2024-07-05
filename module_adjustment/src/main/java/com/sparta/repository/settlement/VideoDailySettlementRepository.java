@@ -15,20 +15,17 @@ import java.util.Optional;
 @Repository
 public interface VideoDailySettlementRepository extends JpaRepository<VideoDailySettlementEntity, Long> {
 
-    Optional<VideoDailySettlementEntity> findByVideoIdAndDate(Long videoId, LocalDate date);
-
-    @Modifying
-    @Transactional
-    @Query("UPDATE video_daily_settlement v SET v.videoSettlementAmount = :videoSettlementAmount, v.adSettlementAmount = :adSettlementAmount WHERE v.videoId = :videoId AND v.date = :date")
-    void updateDailySettlement(@Param("videoId") Long videoId, @Param("date") LocalDate date, @Param("videoSettlementAmount") Long videoSettlementAmount, @Param("adSettlementAmount") Long adSettlementAmount);
-
-    @Modifying
-    @Transactional
-    @Query("UPDATE video_daily_settlement v SET v.adSettlementAmount = :adSettlementAmount WHERE v.videoId = :videoId AND v.date = :date")
-    void updateAdSettlementAmount(@Param("videoId") Long videoId, @Param("date") LocalDate date, @Param("adSettlementAmount") Long adSettlementAmount);
+    @Query("SELECT v FROM video_daily_settlement v WHERE v.videoId = :videoId AND v.date = :today")
+    List<VideoDailySettlementEntity> findDailyData(@Param("videoId") Long videoId, @Param("today") LocalDate today);
 
 
-    @Query("SELECT v FROM video_daily_settlement v WHERE v.videoId = :videoId AND (v.date BETWEEN :monday AND :sunday)")
-    List<VideoDailySettlementEntity> findPeriodData(@Param("videoId") Long videoId, @Param("monday") LocalDate monday, @Param("sunday") LocalDate sunday);
+    @Query("SELECT vds.videoId AS videoId, " +
+            "SUM(vds.videoSettlementAmount) AS total_video_settlement_amount, " +
+            "SUM(vds.adSettlementAmount) AS total_ad_settlement_amount " +
+            "FROM video_daily_settlement vds " +
+            "WHERE vds.videoId = :videoId AND" +
+            "(vds.date BETWEEN :startDate AND :endDate) " +
+            "GROUP BY vds.videoId")
+    List<Object[]> findPeriodData(@Param("videoId") Long videoId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
 }

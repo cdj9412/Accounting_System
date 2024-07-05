@@ -1,18 +1,18 @@
-package com.sparta.processor.daily;
+package com.sparta.processor;
 
-import com.sparta.entity.daily.VideoDailySettlementEntity;
+import com.sparta.entity.VideoDailySettlementEntity;
 import com.sparta.entity.VideoDailyViewsEntity;
-import com.sparta.processor.UnitPriceCalculator;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j(topic = "VideoDailyStatisticsProcessor")
 public class VideoDailySettlementProcessor implements ItemProcessor<VideoDailyViewsEntity, VideoDailySettlementEntity> {
-    private UnitPriceCalculator unitPriceCalculator;
+    private final UnitPriceCalculator unitPriceCalculator;
 
     @Override
     public VideoDailySettlementEntity process(VideoDailyViewsEntity item) throws Exception {

@@ -3,16 +3,12 @@ package com.sparta.service.impl;
 import com.sparta.common.ResponseCode;
 import com.sparta.common.ResponseMessage;
 import com.sparta.dto.response.TimeResponseDto;
-import com.sparta.dto.response.ViewResponseDto;
 import com.sparta.dto.response.TopTimeResponseDto;
 import com.sparta.dto.response.TopViewResponseDto;
+import com.sparta.dto.response.ViewResponseDto;
 import com.sparta.entity.statistics.VideoDailyStatisticsEntity;
-import com.sparta.entity.statistics.VideoMonthlyStatisticsEntity;
-import com.sparta.entity.statistics.VideoWeeklyStatisticsEntity;
 import com.sparta.repository.statistics.VideoDailyStatisticsRepository;
-import com.sparta.repository.statistics.VideoMonthlyStatisticsRepository;
-import com.sparta.repository.statistics.VideoWeeklyStatisticsRepository;
-import com.sparta.service.AdjustmentService;
+import com.sparta.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,20 +21,18 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AdjustmentServiceImpl implements AdjustmentService {
-    private VideoDailyStatisticsRepository videoDailyStatisticsRepository;
-    private VideoWeeklyStatisticsRepository videoWeeklyStatisticsRepository;
-    private VideoMonthlyStatisticsRepository videoMonthlyStatisticsRepository;
+public class StatisticsServiceImpl implements StatisticsService {
+    private final VideoDailyStatisticsRepository videoDailyStatisticsRepository;
 
     @Override
-    public ViewResponseDto findDailyView() {
+    public ViewResponseDto findDailyView(String userId) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
         String responseCode = ResponseCode.SUCCESS;
         String responseMessage = ResponseMessage.SUCCESS;
 
         // 최고 조회수 top 5
-        List<VideoDailyStatisticsEntity> viewEntityList = videoDailyStatisticsRepository.findViewTop5(today);
+        List<VideoDailyStatisticsEntity> viewEntityList = videoDailyStatisticsRepository.findViewTop5(userId, today);
         List<TopViewResponseDto> topViewResponseDtoList = new ArrayList<>();
         for (VideoDailyStatisticsEntity viewEntity : viewEntityList) {
             topViewResponseDtoList.add(new TopViewResponseDto(viewEntity.getVideoId(), viewEntity.getViewCount()));
@@ -52,42 +46,31 @@ public class AdjustmentServiceImpl implements AdjustmentService {
     }
 
     @Override
-    public ViewResponseDto findWeeklyView() {
+    public ViewResponseDto findWeeklyView(String userId) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
         LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate sunday = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
 
-        String responseCode = ResponseCode.SUCCESS;
-        String responseMessage = ResponseMessage.SUCCESS;
-
-        // 최고 조회수 top 5
-        List<VideoWeeklyStatisticsEntity> viewEntityList = videoWeeklyStatisticsRepository.findViewTop5(monday, sunday);
-        List<TopViewResponseDto> topViewResponseDtoList = new ArrayList<>();
-        for (VideoWeeklyStatisticsEntity viewEntity : viewEntityList) {
-            topViewResponseDtoList.add(new TopViewResponseDto(viewEntity.getVideoId(), viewEntity.getViewCount()));
-        }
-        if (topViewResponseDtoList.isEmpty()) {
-            responseCode = ResponseCode.NOT_EXIST_STATS;
-            responseMessage = ResponseMessage.NOT_EXIST_STATS;
-        }
-
-        return ViewResponseDto.from(responseCode, responseMessage, topViewResponseDtoList);
+        return makeViewResponse(userId, monday, sunday);
     }
 
     @Override
-    public ViewResponseDto findMonthlyView() {
+    public ViewResponseDto findMonthlyView(String userId) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
         LocalDate firstDayOfMonth = today.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate lastDayOfMonth = today.with(TemporalAdjusters.lastDayOfMonth());
 
+        return makeViewResponse(userId, firstDayOfMonth, lastDayOfMonth);
+    }
+
+    private ViewResponseDto makeViewResponse(String userId, LocalDate startDate, LocalDate endDate) {
         String responseCode = ResponseCode.SUCCESS;
         String responseMessage = ResponseMessage.SUCCESS;
-
         // 최고 조회수 top 5
-        List<VideoMonthlyStatisticsEntity> viewEntityList = videoMonthlyStatisticsRepository.findViewTop5(firstDayOfMonth, lastDayOfMonth);
+        List<Object[]> viewObjectList = videoDailyStatisticsRepository.findPeriodViewTop5(userId, startDate, endDate);
         List<TopViewResponseDto> topViewResponseDtoList = new ArrayList<>();
-        for (VideoMonthlyStatisticsEntity viewEntity : viewEntityList) {
-            topViewResponseDtoList.add(new TopViewResponseDto(viewEntity.getVideoId(), viewEntity.getViewCount()));
+        for (Object[] viewObject : viewObjectList) {
+            topViewResponseDtoList.add(new TopViewResponseDto((Long)viewObject[0], (Long)viewObject[1]));
         }
         if (topViewResponseDtoList.isEmpty()) {
             responseCode = ResponseCode.NOT_EXIST_STATS;
@@ -98,14 +81,14 @@ public class AdjustmentServiceImpl implements AdjustmentService {
     }
 
     @Override
-    public TimeResponseDto findDailyTime() {
+    public TimeResponseDto findDailyTime(String userId) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
         String responseCode = ResponseCode.SUCCESS;
         String responseMessage = ResponseMessage.SUCCESS;
 
         // 최고 재생시간 top 5
-        List<VideoDailyStatisticsEntity> timeEntityList = videoDailyStatisticsRepository.findTimeTop5(today);
+        List<VideoDailyStatisticsEntity> timeEntityList = videoDailyStatisticsRepository.findTimeTop5(userId, today);
         List<TopTimeResponseDto> topTimeResponseDtoList = new ArrayList<>();
         for (VideoDailyStatisticsEntity timeEntity : timeEntityList) {
             topTimeResponseDtoList.add(new TopTimeResponseDto(timeEntity.getVideoId(), timeEntity.getPlayTime()));
@@ -120,45 +103,32 @@ public class AdjustmentServiceImpl implements AdjustmentService {
     }
 
     @Override
-    public TimeResponseDto findWeeklyTime() {
+    public TimeResponseDto findWeeklyTime(String userId) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
         LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate sunday = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
 
-        String responseCode = ResponseCode.SUCCESS;
-        String responseMessage = ResponseMessage.SUCCESS;
-
-        // 최고 재생시간 top 5
-        List<VideoWeeklyStatisticsEntity> timeEntityList = videoWeeklyStatisticsRepository.findTimeTop5(monday, sunday);
-        List<TopTimeResponseDto> topTimeResponseDtoList = new ArrayList<>();
-        for (VideoWeeklyStatisticsEntity timeEntity : timeEntityList) {
-            topTimeResponseDtoList.add(new TopTimeResponseDto(timeEntity.getVideoId(), timeEntity.getPlayTime()));
-        }
-
-        if (topTimeResponseDtoList.isEmpty()) {
-            responseCode = ResponseCode.NOT_EXIST_STATS;
-            responseMessage = ResponseMessage.NOT_EXIST_STATS;
-        }
-
-        return TimeResponseDto.from(responseCode, responseMessage, topTimeResponseDtoList);
+        return makeTimeResponse(userId, monday, sunday);
     }
 
     @Override
-    public TimeResponseDto findMonthlyTime() {
+    public TimeResponseDto findMonthlyTime(String userId) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
         LocalDate firstDayOfMonth = today.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate lastDayOfMonth = today.with(TemporalAdjusters.lastDayOfMonth());
 
+        return makeTimeResponse(userId, firstDayOfMonth, lastDayOfMonth);
+    }
+
+    private TimeResponseDto makeTimeResponse(String userId, LocalDate startDate, LocalDate endDate) {
         String responseCode = ResponseCode.SUCCESS;
         String responseMessage = ResponseMessage.SUCCESS;
-
-        // 최고 재생시간 top 5
-        List<VideoMonthlyStatisticsEntity> timeEntityList = videoMonthlyStatisticsRepository.findTimeTop5(firstDayOfMonth, lastDayOfMonth);
+        // 최고 조회수 top 5
+        List<Object[]> timeObjectList = videoDailyStatisticsRepository.findPeriodTimeTop5(userId, startDate, endDate);
         List<TopTimeResponseDto> topTimeResponseDtoList = new ArrayList<>();
-        for (VideoMonthlyStatisticsEntity timeEntity : timeEntityList) {
-            topTimeResponseDtoList.add(new TopTimeResponseDto(timeEntity.getVideoId(), timeEntity.getPlayTime()));
+        for (Object[] timeObject : timeObjectList) {
+            topTimeResponseDtoList.add(new TopTimeResponseDto((Long)timeObject[0], (Long)timeObject[1]));
         }
-
         if (topTimeResponseDtoList.isEmpty()) {
             responseCode = ResponseCode.NOT_EXIST_STATS;
             responseMessage = ResponseMessage.NOT_EXIST_STATS;

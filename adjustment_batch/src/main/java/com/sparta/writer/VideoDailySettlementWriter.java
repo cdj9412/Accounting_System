@@ -1,8 +1,8 @@
-package com.sparta.writer.daily;
+package com.sparta.writer;
 
-import com.sparta.entity.daily.VideoDailySettlementEntity;
-import com.sparta.repository.daily.VideoDailySettlementRepository;
-import lombok.AllArgsConstructor;
+import com.sparta.entity.VideoDailySettlementEntity;
+import com.sparta.repository.VideoDailySettlementRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
@@ -12,14 +12,19 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j(topic = "VideoDailySettlementWriter")
 public class VideoDailySettlementWriter {
-    private VideoDailySettlementRepository videoDailySettlementRepository;
+    private final VideoDailySettlementRepository videoDailySettlementRepository;
 
     @Bean
     @Scope("step")
     public void videoDailySettlementWriterFirst(List<? extends VideoDailySettlementEntity> items) {
+        if(items.isEmpty())  {
+            log.info("일간 조회수 정산을 작성할 시청 내역이 존재하지 않습니다.");
+            return;
+        }
+
         for (VideoDailySettlementEntity entity : items) {
             Optional<VideoDailySettlementEntity> existingEntity = videoDailySettlementRepository.findByVideoIdAndDate(entity.getVideoId(), entity.getDate());
             if (existingEntity.isPresent()) {
@@ -40,6 +45,11 @@ public class VideoDailySettlementWriter {
     @Bean
     @Scope("step")
     public void videoDailySettlementWriterSecond(List<? extends VideoDailySettlementEntity> items) {
+        if(items.isEmpty())  {
+            log.info("일간 광고 조회수 정산을 작성할 시청 내역이 존재하지 않습니다.");
+            return;
+        }
+
         for (VideoDailySettlementEntity entity : items) {
             Optional<VideoDailySettlementEntity> existingEntity = videoDailySettlementRepository.findByVideoIdAndDate(entity.getVideoId(), entity.getDate());
             if (existingEntity.isPresent()) {

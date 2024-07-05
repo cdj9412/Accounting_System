@@ -24,8 +24,8 @@ public class VideoPlayHistoryEntity {
     @Column(name = "video_id", nullable = false)
     private Long videoId;
 
-    @Column(name = "member_id", nullable = false)
-    private String memberId;
+    @Column(name = "user_id", nullable = false)
+    private String userId;
 
     @Column(name = "last_play_time", nullable = false)
     private Timestamp lastPlayTime = new Timestamp(System.currentTimeMillis());
@@ -37,9 +37,9 @@ public class VideoPlayHistoryEntity {
     @JoinColumn(name = "video_id", insertable = false, updatable = false)
     private VideoEntity video;
 
-    public VideoPlayHistoryEntity(Long videoId, String memberId, Timestamp lastPlayTime, int currentPosition) {
+    public VideoPlayHistoryEntity(Long videoId, String userId, Timestamp lastPlayTime, int currentPosition) {
         this.videoId = videoId;
-        this.memberId = memberId;
+        this.userId = userId;
         this.lastPlayTime = lastPlayTime;
         this.currentPosition = currentPosition;
     }

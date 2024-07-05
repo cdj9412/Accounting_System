@@ -1,7 +1,6 @@
-package com.sparta.repository.daily;
+package com.sparta.repository;
 
-import com.sparta.entity.daily.VideoDailySettlementEntity;
-import com.sparta.entity.daily.VideoDailyStatisticsEntity;
+import com.sparta.entity.VideoDailySettlementEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

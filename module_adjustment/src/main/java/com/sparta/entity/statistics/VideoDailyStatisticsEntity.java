@@ -1,5 +1,6 @@
 package com.sparta.entity.statistics;
 
+import com.sparta.entity.VideoEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,5 +29,9 @@ public class VideoDailyStatisticsEntity {
 
     @Column(name = "play_time", nullable = false)
     private Long playTime = 0L;
+
+    @ManyToOne
+    @JoinColumn(name = "video_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private VideoEntity video;
 
 }

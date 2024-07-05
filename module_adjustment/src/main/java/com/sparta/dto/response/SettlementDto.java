@@ -1,6 +1,5 @@
 package com.sparta.dto.response;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,7 +7,9 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class TopViewResponseDto {
+public class SettlementDto {
     private Long videoId;
-    private Long viewCount;
+    private Long sumSettlement;
+    private Long viewsSettlement;
+    private Long adSettlement;
 }

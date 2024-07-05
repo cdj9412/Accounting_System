@@ -72,7 +72,7 @@ public class StreamingServiceImplement implements StreamingService {
             return true;
 
         // 2. 기존 시청기록이 30초 이내에 있을 경우
-        Timestamp timestamp = videoHistoryRepository.findLastPlayTimeByVideoIdAndMemberId(videoId, userId);
+        Timestamp timestamp = videoHistoryRepository.findLastPlayTimeByVideoIdAndUserId(videoId, userId);
         if (timestamp != null) {
             Instant now = Instant.now();
             Instant lastPlayTime = timestamp.toInstant();
@@ -86,7 +86,7 @@ public class StreamingServiceImplement implements StreamingService {
 
     // 재생기록 작성
     private void playHistoryUpdate(Long videoId, String userId) {
-        Optional<VideoPlayHistoryEntity> playHistory = videoHistoryRepository.findByVideoIdAndMemberId(videoId, userId);
+        Optional<VideoPlayHistoryEntity> playHistory = videoHistoryRepository.findByVideoIdAndUserId(videoId, userId);
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         if (playHistory.isPresent()) {
             // 이미 재생 기록이 존재하는 경우: last_play_time 업데이트
@@ -100,7 +100,7 @@ public class StreamingServiceImplement implements StreamingService {
 
     // 중간 재생 체크
     private int middlePlayCheck(Long videoId, String userId) {
-        VideoPlayHistoryEntity playHistory = videoHistoryRepository.findByVideoIdAndMemberId(videoId, userId)
+        VideoPlayHistoryEntity playHistory = videoHistoryRepository.findByVideoIdAndUserId(videoId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Video play history not found"));
         return playHistory.getCurrentPosition();
     }
