@@ -39,4 +39,9 @@ public class VideoAdDailyViewsEntity {
         this.date = date;
         this.viewCount = viewCount;
     }
+
+    // viewCount 를 증가시키는 메서드
+    public void incrementVideoAdDailyViews() {
+        this.viewCount++;
+    }
 }

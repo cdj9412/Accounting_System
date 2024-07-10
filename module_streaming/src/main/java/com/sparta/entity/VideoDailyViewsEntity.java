@@ -39,4 +39,12 @@ public class VideoDailyViewsEntity {
         this.viewCount = viewCount;
         this.watchTime = watchTime;
     }
+
+    public void incrementDailyViews() {
+        this.viewCount++;
+    }
+
+    public void incrementDailyWatchTime(Long watchTime) {
+        this.watchTime += watchTime;
+    }
 }

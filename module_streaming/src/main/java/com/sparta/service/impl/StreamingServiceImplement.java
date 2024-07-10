@@ -10,6 +10,8 @@ import com.sparta.dto.response.StopResponseDto;
 import com.sparta.entity.*;
 import com.sparta.repository.*;
 import com.sparta.service.StreamingService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +35,7 @@ public class StreamingServiceImplement implements StreamingService {
 
     // 동영상 재생
     // 영상관련 조회수 증가 용도
+    @Transactional
     @Override
     public PlayResponseDto play(PlayRequestDto playRequestDto) {
         Long videoId = playRequestDto.getVideoId();
@@ -86,12 +89,10 @@ public class StreamingServiceImplement implements StreamingService {
 
     // 재생기록 작성
     private void playHistoryUpdate(Long videoId, String userId) {
-        Optional<VideoPlayHistoryEntity> playHistory = videoHistoryRepository.findByVideoIdAndUserId(videoId, userId);
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        if (playHistory.isPresent()) {
-            // 이미 재생 기록이 존재하는 경우: last_play_time 업데이트
-            videoHistoryRepository.updateLastPlayTime(videoId, currentTime);
-        } else {
+        // 쿼리 방식 변경 - 2024/07/09
+        int updateRow = videoHistoryRepository.updateLastPlayTime(videoId, currentTime);
+        if (updateRow == 0) {
             // 재생 기록이 존재하지 않는 경우: 새로운 재생 기록 생성
             VideoPlayHistoryEntity newPlayHistory = new VideoPlayHistoryEntity(videoId, userId, currentTime, 0);
             videoHistoryRepository.save(newPlayHistory); // 새로운 엔티티 저장
@@ -106,7 +107,8 @@ public class StreamingServiceImplement implements StreamingService {
     }
 
     // 일일 조회수 내역 체크 및 조회수 증가
-    private void dailyPlayViewsUpdate(Long videoId) {
+    @Transactional
+    protected void dailyPlayViewsUpdate(Long videoId) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
         // 오늘 날짜 조회수 테이블 데이터 조회
@@ -114,7 +116,7 @@ public class StreamingServiceImplement implements StreamingService {
 
         if (dailyViews.isPresent()) {
             // 이미 오늘 날짜 데이터가 존재하는 경우 조회수를 증가시킴
-            videoDailyViewsRepository.incrementViewCount(videoId, today);
+            incrementDailyViews(videoId, today);
         }
         else {
             // 오늘 날짜 데이터가 없는 경우 신규 생성
@@ -123,11 +125,37 @@ public class StreamingServiceImplement implements StreamingService {
         }
 
         // 동영상 관리 테이블 전체 조회수 증가 처리
-        videoRepository.incrementTotalViews(videoId);
+        incrementTotalViews(videoId);
+    }
+
+    @Transactional
+    protected void incrementDailyViews(Long videoId, LocalDate today) {
+        VideoDailyViewsEntity entity = videoDailyViewsRepository.findByVideoIdAndDateWithPessimisticLock(videoId, today);
+
+        if (entity != null) {
+            entity.incrementDailyViews();
+
+            videoDailyViewsRepository.save(entity);
+        }
+    }
+
+    // Pessimistic lock 사용을 위한 코드 수정 및 추가
+    @Transactional
+    protected void incrementTotalViews(Long videoId) {
+        // 비관적 락을 사용해 비디오 엔티티 조회
+        VideoEntity video = videoRepository.findByIdWithPessimisticLock(videoId)
+                .orElseThrow(() -> new EntityNotFoundException("Video not found"));
+
+        // 조회한 비디오 엔티티의 totalViews 증가
+        video.incrementTotalViews();
+
+        // 변경 사항 저장
+        videoRepository.save(video);
     }
 
 
     // 동영상 중단
+    @Transactional
     @Override
     public StopResponseDto stop(StopRequestDto stopRequestDto) {
         Long videoId = stopRequestDto.getVideoId();
@@ -160,13 +188,14 @@ public class StreamingServiceImplement implements StreamingService {
     }
 
     // 동영상 시청 완료
+    @Transactional
     @Override
     public CompleteResponseDto complete(CompleteRequestDto completeRequestDto) {
         Long videoId = completeRequestDto.getVideoId();
         String userId = completeRequestDto.getUserId();
         Optional<VideoEntity> videoEntity = videoRepository.findById(videoId);
 
-        int completePoint = 0;
+        int completePoint;
         if(videoEntity.isPresent()) {
             completePoint = videoEntity.get().getRunningTime();
         }
@@ -188,7 +217,8 @@ public class StreamingServiceImplement implements StreamingService {
 
     // 광고 재생 체크 및 조회수 변경
     // 카운팅 테이블 : ad, video_ad, video_ad_daily_views
-    private void adViewsUpdate(Long videoId, int startPoint, int stopPoint) {
+    @Transactional
+    protected void adViewsUpdate(Long videoId, int startPoint, int stopPoint) {
         List<VideoAdEntity> videoAds = videoAdRepository.findByVideoId(videoId);
 
         for(VideoAdEntity videoAd : videoAds) {
@@ -198,7 +228,7 @@ public class StreamingServiceImplement implements StreamingService {
             // 광고 위치가 startPoint 와 stopPoint 사이에 있는 경우
             if (adPosition >= startPoint && adPosition <= stopPoint) {
                 // ad_views 를 1 증가시킴
-                videoAdRepository.incrementAdViews(videoId, adId);
+                incrementAdViews(videoId, adId);
 
                 // ad, video_ad_daily_views 의  view_count 를 1 증가 시킴
                 dailyPlayAdViewsUpdate(videoId, adId);
@@ -206,8 +236,22 @@ public class StreamingServiceImplement implements StreamingService {
         }
     }
 
+    @Transactional
+    protected void incrementAdViews(Long videoId,Long adId) {
+        // 비관적 락을 사용하여 엔티티를 조회
+        VideoAdEntity videoAdEntity = videoAdRepository.findByVideoIdAndAdIdWithPessimisticLock(videoId, adId);
+
+        if (videoAdEntity != null) {
+            // 조회된 엔티티의 adViews 필드를 업데이트
+            videoAdEntity.incrementAdViews();
+            videoAdRepository.save(videoAdEntity); // 엔티티 저장
+        }
+    }
+
+
     // 일일 광고 조회수 내역 체크 및 조회수 증가
-    private void dailyPlayAdViewsUpdate(Long videoId, Long adId) {
+    @Transactional
+    protected void dailyPlayAdViewsUpdate(Long videoId, Long adId) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
         // 오늘 날짜 조회수 테이블 데이터 조회
@@ -215,7 +259,7 @@ public class StreamingServiceImplement implements StreamingService {
 
         if (dailyAdViews.isPresent()) {
             // 이미 오늘 날짜 데이터가 존재하는 경우 조회수를 증가시킴
-            videoAdDailyViewsRepository.incrementViewCount(videoId, adId, today);
+            incrementVideoAdViews(videoId, adId, today);
         }
         else {
             // 오늘 날짜 데이터가 없는 경우 신규 생성
@@ -224,13 +268,44 @@ public class StreamingServiceImplement implements StreamingService {
         }
 
         // ad 관리 테이블 전체 조회수 증가 처리
-        adRepository.incrementTotalViews(adId);
+        incrementAdTotalViews(adId);
     }
 
+    @Transactional
+    protected void incrementVideoAdViews(Long videoId, Long adId, LocalDate today) {
+        VideoAdDailyViewsEntity entity = videoAdDailyViewsRepository.findByVideoIdAdIdAndDateWithPessimisticLock(videoId, adId, today);
+
+        if (entity != null) {
+            // 조회된 엔티티의 viewCount 필드를 업데이트
+            entity.incrementVideoAdDailyViews();
+            videoAdDailyViewsRepository.save(entity); // 엔티티 저장
+        }
+    }
+
+    @Transactional
+    protected void incrementAdTotalViews(Long adId) {
+        // 비관적 락을 사용해 광고 엔티티 조회
+        AdEntity entity = adRepository.findByIdWithPessimisticLock(adId)
+                .orElseThrow(() -> new EntityNotFoundException("Ad not found"));
+
+        // 조회한 광고 엔티티의 totalViews 증가
+        entity.incrementAdTotalViews();
+
+        // 변경 사항 저장
+        adRepository.save(entity);
+    }
+
+
+
     // 시청시간 추가
-    private void addWatchTime(Long videoId, Long watchTime) {
+    @Transactional
+    protected void addWatchTime(Long videoId, Long watchTime) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
-        videoDailyViewsRepository.incrementWatchTime(videoId, today, watchTime);
+        VideoDailyViewsEntity entity = videoDailyViewsRepository.findByVideoIdAndDateWithPessimisticLock(videoId, today);
+        if (entity != null) {
+            entity.incrementDailyWatchTime(watchTime);
+            videoDailyViewsRepository.save(entity);
+        }
     }
 
 }

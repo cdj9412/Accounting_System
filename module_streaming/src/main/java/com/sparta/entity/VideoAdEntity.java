@@ -35,4 +35,9 @@ public class VideoAdEntity {
     @Column(name = "ad_views", nullable = false)
     private Long adViews = 0L;
 
+    // adViews 를 증가시키는 메서드
+    public void incrementAdViews() {
+        this.adViews++;
+    }
+
 }

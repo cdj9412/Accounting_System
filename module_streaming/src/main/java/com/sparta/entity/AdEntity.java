@@ -30,4 +30,8 @@ public class AdEntity {
     // VideoAd 와 일대다 관계
     @OneToMany(mappedBy = "ad")
     private Set<VideoAdEntity> videoAds;
+
+    public void incrementAdTotalViews() {
+        this.totalViews++;
+    }
 }

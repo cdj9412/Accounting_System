@@ -38,5 +38,9 @@ public class VideoEntity {
     @OneToMany(mappedBy = "video")
     private Set<VideoAdEntity> videoAds;
 
+    // totalViews 를 증가시키는 메서드
+    public void incrementTotalViews() {
+        this.totalViews++;
+    }
 
 }

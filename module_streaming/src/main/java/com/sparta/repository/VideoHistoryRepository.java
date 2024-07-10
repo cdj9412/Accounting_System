@@ -21,9 +21,11 @@ public interface VideoHistoryRepository extends JpaRepository<VideoPlayHistoryEn
 
     @Transactional
     @Modifying
-    @Query("UPDATE video_play_history v SET v.lastPlayTime = :currentTime WHERE v.videoId = :videoId")
-    void updateLastPlayTime(@Param("videoId") Long videoId, @Param("currentTime") Timestamp currentTime);
-
+    @Query("UPDATE video_play_history v " +
+            "SET v.lastPlayTime = :currentTime " +
+            "WHERE v.videoId = :videoId " +
+            "AND v.id = (SELECT MAX(id) FROM video_play_history WHERE videoId = :videoId)")
+    int updateLastPlayTime(@Param("videoId") Long videoId, @Param("currentTime") Timestamp currentTime);
 
     @Transactional
     @Modifying
