@@ -18,6 +18,7 @@ public class VideoDailyStatisticsWriter implements ItemWriter<VideoDailyStatisti
 
     @Override
     public void write(Chunk<? extends VideoDailyStatisticsEntity> chunk) throws Exception {
+        log.info("현재 writer thread 이름 : {}", Thread.currentThread().getName());
         if(chunk.isEmpty())  {
             log.info("일일 통계를 작성할 시청 내역이 존재하지 않습니다.");
             return;

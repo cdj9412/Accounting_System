@@ -16,16 +16,21 @@ public class VideoAdDailySettlementProcessor implements ItemProcessor<VideoAdDai
     @Override
     public VideoDailySettlementEntity process(VideoAdDailyViewsEntity item) throws Exception {
         // video_ad_daily_views 를 사용하여 video_daily_settlement 를 위한 데이터 처리
-        VideoDailySettlementEntity adSettlement = new VideoDailySettlementEntity();
-        adSettlement.setVideoId(item.getVideoId());
-        adSettlement.setDate(item.getDate());
-        // 여기도 조회 수 별 광고 단가 조정 필요
-        Long datePrice = unitPriceCalculator.calculateDailyAdPrice(item.getVideoId(), item.getDate());
-        adSettlement.setAdSettlementAmount(datePrice);
+        try {
+            VideoDailySettlementEntity adSettlement = new VideoDailySettlementEntity();
+            adSettlement.setVideoId(item.getVideoId());
+            adSettlement.setDate(item.getDate());
 
-        log.error("videoId : {}, date : {}, view : {}", item.getVideoId(), item.getDate(), item.getViewCount());
-        log.error("계산 광고 단가 : {}", datePrice);
+            Long datePrice = unitPriceCalculator.calculateDailyAdPrice(item.getVideoId(), item.getDate());
+            adSettlement.setAdSettlementAmount(datePrice);
 
-        return adSettlement;
+            log.info("{} - videoId : {}, date : {}, view : {} 계산 광고 단가 : {}",
+                    Thread.currentThread().getName(), item.getVideoId(), item.getDate(), item.getViewCount(), datePrice);
+
+            return adSettlement;
+        } catch (Exception e) {
+            log.error("Error processing item: {} {}", e, item);
+            throw new RuntimeException(e);
+        }
     }
 }

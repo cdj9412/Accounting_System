@@ -27,8 +27,4 @@ public interface VideoDailySettlementRepository extends JpaRepository<VideoDaily
     @Query("UPDATE video_daily_settlement v SET v.adSettlementAmount = :adSettlementAmount WHERE v.videoId = :videoId AND v.date = :date")
     void updateAdSettlementAmount(@Param("videoId") Long videoId, @Param("date") LocalDate date, @Param("adSettlementAmount") Long adSettlementAmount);
 
-
-    @Query("SELECT v FROM video_daily_settlement v WHERE v.videoId = :videoId AND (v.date BETWEEN :monday AND :sunday)")
-    List<VideoDailySettlementEntity> findPeriodData(@Param("videoId") Long videoId, @Param("monday") LocalDate monday, @Param("sunday") LocalDate sunday);
-
 }

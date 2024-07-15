@@ -17,9 +17,6 @@ public interface VideoDailyStatisticsRepository extends JpaRepository<VideoDaily
     @Query("SELECT v FROM video_daily_statistics v WHERE v.videoId = :videoId AND v.date = CURRENT_DATE")
     Optional<VideoDailyStatisticsEntity> findByDate(@Param("videoId") Long videoId);
 
-    @Query("SELECT v FROM video_daily_statistics v WHERE v.videoId = :videoId AND (v.date BETWEEN :monday AND :sunday)")
-    List<VideoDailyStatisticsEntity> findPeriodData(@Param("videoId") Long videoId, @Param("monday") LocalDate monday, @Param("sunday") LocalDate sunday);
-
     @Modifying
     @Transactional
     @Query("UPDATE video_daily_statistics v SET v.viewCount = :viewCount, v.playTime = :playTime WHERE v.videoId = :videoId AND v.date = :date")
