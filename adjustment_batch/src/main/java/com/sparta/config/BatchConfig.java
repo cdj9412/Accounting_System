@@ -125,10 +125,10 @@ public class BatchConfig {
     @Bean
     public TaskExecutor settleThreadPoolTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(25);
-        executor.setThreadNamePrefix("settlement-thread-");
+        executor.setCorePoolSize(10); // 기본적으로 유지되는 스레드 수
+        executor.setMaxPoolSize(10); // 최대로 확장 가능한 스레드 수
+        executor.setQueueCapacity(25); // 작업이 대기할 수 있는 최대 수
+        executor.setThreadNamePrefix("settlement-thread-"); // 생성되는 스레드의 이름 접두사
         executor.initialize();
         log.info("Initialized settleThreadPoolTaskExecutor with core pool size: {}, max pool size: {}",
                 executor.getCorePoolSize(), executor.getMaxPoolSize());
