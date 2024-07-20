@@ -33,7 +33,7 @@
 
 ## 🏷️ 프로젝트 주요 경험
 
-### 1. 배치 작업 성능 개선 (97.42% 향상)
+### 1. 배치 작업 성능 개선 (X% 향상)
 [📚 성능 테스트 과정 상세](https://choidj94.notion.site/Spring-Batch-aaca97f9203f4351baa60ef791f1a43b?pvs=4)
 
 <details>
@@ -47,8 +47,8 @@
 | 단계 | 데이터 규모 | 처리 시간 | 개선율 |
 |------|------------|-----------|--------|
 | 최적화 전 | 1억 건 | 60분+ | - |
-| 1차 최적화 | 1억 건 | 21분(통계) + 30분+(정산) | 7%+ ↓ |
-| 2차 최적화 | 1억 건 | 1분 17초 + 정산처리시간 | 73.33% ↓ |
+| 1차 최적화 | 1억 건 | 21분(통계) + 30분+(정산) | 14%+ ↓ |
+| 2차 최적화 | 1억 건 | 1분 17초 + 정산처리시간 | X% ↓ |
 
 *1차 최적화 결과의 정산 처리 시간은 약 1000만 건 기준 실측치(3분 13초)를 바탕으로 1억 건에 대한 처리시간을 추정한 값입니다.
 
@@ -99,7 +99,7 @@
 
 </details>
 
-### 🚨 트러블 슈팅
+### 4. 트러블 슈팅
 - [API Gateway 인증 처리 불가 문제](https://choidj94.notion.site/API-Gateway-784aece52e2b4f12a2ae534e7499d16b?pvs=4)
 - [MySQL replication Master-Slave 연결 해제 문제](https://choidj94.notion.site/MySQL-replication-Master-Slave-e91e1d634e6f41ce918278276ed72f6d?pvs=4)
 - [Chunk Read 동시성 제어 문제](https://choidj94.notion.site/Chunk-Read-0533861fe5584b0d811a81ae48d763bb?pvs=4)
