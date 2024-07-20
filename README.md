@@ -2,7 +2,13 @@
 
 📅 **2024년 6월 ~ 2024년 7월**
 
-<img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=Spring Boot&logoColor=white"><img src="https://img.shields.io/badge/Spring%20Batch-6DB33F?style=for-the-badge&logo=spring&logoColor=white"><img src="https://img.shields.io/badge/Spring Cloud-6DB33F?style=for-the-badge&logo= &logoColor=white"><img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=Spring Security&logoColor=white"><img src="https://img.shields.io/badge/JPA-59666C?style=for-the-badge&logo=Hibernate&logoColor=white"><img src="https://img.shields.io/badge/QueryDSL-0769AD?style=for-the-badge&logo=Java&logoColor=white"><img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=MySQL&logoColor=white"><img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=Docker&logoColor=white"><img src="https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=Prometheus&logoColor=white"><img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=Grafana&logoColor=white">
+### ⚙️️ 주요 기술 스택
+
+![Java](https://img.shields.io/badge/Java-21-007396?style=flat-square&logo=java&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.1-6DB33F?style=flat-square&logo=spring-boot&logoColor=white)
+![Spring Cloud Gateway](https://img.shields.io/badge/Spring%20Cloud%20Gateway-4.1.4-6DB33F?style=flat-square&logo=spring&logoColor=white)
+![Spring Cloud Eureka](https://img.shields.io/badge/Spring%20Cloud%20Eureka-4.1.2-6DB33F?style=flat-square&logo=spring&logoColor=white)
+![Gradle](https://img.shields.io/badge/Gradle-8.8-02303A?style=flat-square&logo=gradle&logoColor=white)
 
 ## 📌 프로젝트 소개
 
@@ -30,6 +36,16 @@
 ## 🔥 프로젝트 목표
 1. 1억 건의 데이터에 대한 배치 작업을 2분대로 처리
 2. 멀티 스레드와 멀티 프로세스 환경에서 원활하게 서비스 동작
+
+## 🔍 아키텍처
+![아키텍쳐](https://github.com/user-attachments/assets/3bc52d73-0f1f-4a58-941f-83889750dad0)
+
+
+## 📃 프로젝트 상세
+
+### 📘 API 문서
+
+문서 수정중... 차후 업데이트
 
 ## 🏷️ 프로젝트 주요 경험
 
@@ -104,20 +120,3 @@
 - [MySQL replication Master-Slave 연결 해제 문제](https://choidj94.notion.site/MySQL-replication-Master-Slave-e91e1d634e6f41ce918278276ed72f6d?pvs=4)
 - [Chunk Read 동시성 제어 문제](https://choidj94.notion.site/Chunk-Read-0533861fe5584b0d811a81ae48d763bb?pvs=4)
   
-## 🔍 아키텍처
-![아키텍쳐](https://github.com/user-attachments/assets/3bc52d73-0f1f-4a58-941f-83889750dad0)
-
-
-## 📃 프로젝트 상세
-
-### ⚙️️ 주요 기술 스택
-
-![Java](https://img.shields.io/badge/Java-21-007396?style=flat-square&logo=java&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.1-6DB33F?style=flat-square&logo=spring-boot&logoColor=white)
-![Spring Cloud Gateway](https://img.shields.io/badge/Spring%20Cloud%20Gateway-4.1.4-6DB33F?style=flat-square&logo=spring&logoColor=white)
-![Spring Cloud Eureka](https://img.shields.io/badge/Spring%20Cloud%20Eureka-4.1.2-6DB33F?style=flat-square&logo=spring&logoColor=white)
-![Gradle](https://img.shields.io/badge/Gradle-8.8-02303A?style=flat-square&logo=gradle&logoColor=white)
-
-### 📘 API 문서
-
-문서 수정중... 차후 업데이트
