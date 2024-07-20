@@ -105,7 +105,8 @@
 - [Chunk Read 동시성 제어 문제](https://choidj94.notion.site/Chunk-Read-0533861fe5584b0d811a81ae48d763bb?pvs=4)
   
 ## 🔍 아키텍처
-이미지 수정 중
+![아키텍쳐](https://github.com/user-attachments/assets/3bc52d73-0f1f-4a58-941f-83889750dad0)
+
 
 ## 📃 프로젝트 상세
 
