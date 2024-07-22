@@ -21,16 +21,16 @@ public class VideoPlayHistoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "video_id", nullable = false)
+    @Column(name = "video_id")
     private Long videoId;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")
     private String userId;
 
-    @Column(name = "last_play_time", nullable = false)
+    @Column(name = "last_play_time")
     private Timestamp lastPlayTime = new Timestamp(System.currentTimeMillis());
 
-    @Column(name = "current_position", nullable = false)
+    @Column(name = "current_position")
     private int currentPosition = 0;
 
     @ManyToOne

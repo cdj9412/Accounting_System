@@ -13,10 +13,9 @@ import java.util.Optional;
 
 @Repository
 public interface VideoDailyViewsRepository extends JpaRepository<VideoDailyViewsEntity, Long> {
-    Optional<VideoDailyViewsEntity> findByVideoIdAndDate(Long videoId, LocalDate date);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT v FROM video_daily_views v WHERE v.videoId = :videoId AND v.date = :date")
-    VideoDailyViewsEntity findByVideoIdAndDateWithPessimisticLock(@Param("videoId") Long videoId, @Param("date") LocalDate date);
+    @Query("SELECT v FROM video_daily_views v WHERE v.videoId = :videoId AND v.userId = :userId AND v.date = :date")
+    VideoDailyViewsEntity findByVideoIdAndDateWithPessimisticLock(@Param("videoId") Long videoId, @Param("userId") String userId, @Param("date") LocalDate date);
 
 }

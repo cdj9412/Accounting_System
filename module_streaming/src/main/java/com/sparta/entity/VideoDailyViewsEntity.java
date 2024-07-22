@@ -21,28 +21,29 @@ public class VideoDailyViewsEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "video_id", nullable = false)
+    @Column(name = "video_id")
     private Long videoId;
 
-    @Column(name = "date", nullable = false)
+    @Column(name = "user_id")
+    private String userId;
+
+    @Column(name = "date")
     private LocalDate date;
 
-    @Column(name = "view_count", nullable = false)
-    private Long viewCount;
+    @Column(name = "ad_count")
+    private Long adCount;
 
-    @Column(name = "watch_time", nullable = false)
+    @Column(name = "watch_time")
     private Long watchTime;
 
-    public VideoDailyViewsEntity(Long videoId, LocalDate date, Long viewCount, Long watchTime) {
+    public VideoDailyViewsEntity(Long videoId, String userId, LocalDate date, Long adCount, Long watchTime) {
         this.videoId = videoId;
+        this.userId = userId;
         this.date = date;
-        this.viewCount = viewCount;
+        this.adCount = adCount;
         this.watchTime = watchTime;
     }
 
-    public void incrementDailyViews() {
-        this.viewCount++;
-    }
 
     public void incrementDailyWatchTime(Long watchTime) {
         this.watchTime += watchTime;

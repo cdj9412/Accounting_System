@@ -21,13 +21,13 @@ public class VideoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "creator_id", nullable = false)
+    @Column(name = "creator_id")
     private String creatorId;
 
-    @Column(name = "total_views", nullable = false)
+    @Column(name = "total_views")
     private Long totalViews = 0L;
 
-    @Column(name = "running_time", nullable = false)
+    @Column(name = "running_time")
     private int runningTime = 0;
 
     // VideoPlayHistory 와 일대다 관계

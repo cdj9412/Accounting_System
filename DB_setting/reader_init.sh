@@ -67,9 +67,21 @@ CHANGE REPLICATION SOURCE TO
     SOURCE_USER='root',
     SOURCE_PASSWORD='$MYSQL_ROOT_PASSWORD',
     SOURCE_LOG_FILE='$CURRENT_LOG',
-    SOURCE_LOG_POS=$CURRENT_POS;
+    SOURCE_LOG_POS=$CURRENT_POS,
+    GET_SOURCE_PUBLIC_KEY=1;
 START REPLICA;
 SHOW REPLICA STATUS\G
 EOF
+
+# 복제 상태 확인
+echo "Checking replication status"
+REPLICA_STATUS=$(mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "SHOW REPLICA STATUS\G")
+if echo "$REPLICA_STATUS" | grep -q "Slave_IO_Running: Yes" && echo "$REPLICA_STATUS" | grep -q "Slave_SQL_Running: Yes"; then
+    echo "Replication is running successfully"
+else
+    echo "Replication setup failed"
+    echo "$REPLICA_STATUS"
+    exit 1
+fi
 
 echo "Replication setup completed"
