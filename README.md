@@ -56,7 +56,7 @@
 <summary><strong>Quick Overview</strong></summary>
 
 #### 📊 최종 성능
-**1억 건 기준 실측 결과: 정산 로직 수정중(통계만 1m 17sec 883ms)**
+**1억 건 기준 실측 결과: 1m 20sec 340ms**
 
 #### 📈 성능 개선 추이
 
