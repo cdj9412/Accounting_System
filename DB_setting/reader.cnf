@@ -1,0 +1,4 @@
+[mysqld]
+require_secure_transport = OFF
+bind-address = 0.0.0.0
+server-id=2

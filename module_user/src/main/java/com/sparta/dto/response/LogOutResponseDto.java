@@ -1,6 +1,5 @@
 package com.sparta.dto.response;
 
-import com.sparta.entity.UserEntity;
 import lombok.Getter;
 import lombok.Setter;
 

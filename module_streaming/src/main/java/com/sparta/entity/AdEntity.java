@@ -21,13 +21,11 @@ public class AdEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "category", nullable = false)
+    @Column(name = "category")
     private String category;
-
-    @Column(name = "total_views", nullable = false)
-    private Long totalViews = 0L;
 
     // VideoAd 와 일대다 관계
     @OneToMany(mappedBy = "ad")
     private Set<VideoAdEntity> videoAds;
+
 }

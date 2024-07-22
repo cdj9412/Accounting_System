@@ -29,10 +29,15 @@ public class VideoAdEntity {
     @JoinColumn(name = "ad_id")
     private AdEntity ad;
 
-    @Column(name = "ad_position", nullable = false)
+    @Column(name = "ad_position")
     private int adPosition;
 
-    @Column(name = "ad_views", nullable = false)
+    @Column(name = "ad_views")
     private Long adViews = 0L;
+
+    // adViews 를 증가시키는 메서드
+    public void incrementAdViews() {
+        this.adViews++;
+    }
 
 }
