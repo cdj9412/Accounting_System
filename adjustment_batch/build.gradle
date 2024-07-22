@@ -3,13 +3,18 @@ plugins {
 }
 
 group = 'com.sparta'
-version = 'unspecified'
+version = '0.0.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+
+    //Actuator, Prometheus
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
     // Spring Batch
     implementation 'org.springframework.boot:spring-boot-starter-batch'
 
