@@ -84,7 +84,7 @@
 
 ### 📘 API 문서
 
-문서 수정중... 차후 업데이트
+[정산 프로젝트 API 문서](https://choidj94.notion.site/API-59e09f43283f4f94801751b3785e8b6e?pvs=4)
 
 ### ERD
 
