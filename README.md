@@ -15,23 +15,62 @@
 - 대량의 영상 시청기록에 대한 통계 및 정산 Batch 작업
 - 부하분산을 위한 MSA 구조
 
-## 🛠️ 기능 (다른 포맷으로 변경 예정)
+## 🛠️ 기능
 1. User Service
-   - 이용자 관리
-     - 회원가입
-     - 로그인
-     - 로그아웃
+   <table>
+     <tr>
+       <th>기능 구분</th>
+       <th>기능</th>
+     </tr>
+     <tr>
+       <td rowspan="3">이용자 관리</td>
+       <td>회원가입</td>
+     </tr>
+     <tr>
+       <td>로그인</td>
+     </tr>
+     <tr>
+       <td>로그아웃</td>
+     </tr>
+   </table>
+
 2. Streaming Service
-   - 동영상 재생 관리
-     - 동영상 재생
-     - 동영상 중단
-     - 동영상 시청 완료
+   <table>
+     <tr>
+       <th>기능 구분</th>
+       <th>기능</th>
+     </tr>
+     <tr>
+       <td rowspan="3">동영상 재생 관리</td>
+       <td>동영상 재생</td>
+     </tr>
+     <tr>
+       <td>동영상 중단</td>
+     </tr>
+     <tr>
+       <td>동영상 재생 관리</td>
+     </tr>
+   </table>
+
 3. Adjustment Service
-   - 동영상 통계 조회
-     - 일간/주간/월간 조회 수 Top 5
-     - 일간/주간/월간 재생 시간 Top 5
-   - 동영상 정산 조회
-     - 일간/주간/월간 정산 데이터 조회
+   <table>
+     <tr>
+       <th>기능 구분</th>
+       <th>기능</th>
+     </tr>
+     <tr>
+       <td rowspan="2">동영상 통계 조회</td>
+       <td>일간/주간/월간 조회 수 Top 5</td>
+     </tr>
+     <tr>
+       <td>일간/주간/월간 재생 시간 Top 5</td>
+     </tr>
+     <tr>
+       <td rowspan="1">동영상 정산 조회</td>
+       <td>일간/주간/월간 정산 데이터 조회</td>
+     </tr>
+   </table>
+
 
 ## 🔥 프로젝트 목표
 1. 1억 건의 데이터에 대한 배치 작업을 2분대로 처리
@@ -46,6 +85,11 @@
 ### 📘 API 문서
 
 문서 수정중... 차후 업데이트
+
+### ERD
+
+![image](https://github.com/user-attachments/assets/09012cda-f299-4dd5-9316-81b2b6478285)
+
 
 ## 🏷️ 프로젝트 주요 경험
 
@@ -81,42 +125,36 @@
 
 ### 3. 부하 분산 및 서비스 매핑
 
-<details>
-<summary><strong>Spring Cloud Gateway</strong></summary>
+<strong>3.1 Spring Cloud Gateway</strong>
 
 - 중앙 집중식 인증 및 권한 부여, JWT 토큰 검증
 - 로드 밸런싱: 라운드 로빈 방식으로 스트리밍 서비스 트래픽 분산
 
-</details>
-
-<details>
-<summary><strong>Spring Cloud Eureka</strong></summary>
+<strong>3.2 Spring Cloud Eureka</strong>
 
 - Eureka 서비스 ID를 활용한 자동 서비스 매핑
    - Eureka에 등록된 서비스 ID를 활용하여 요청을 자동으로 해당 서비스로 매핑
-   - streaming-service 멀티 프로세스를 동일한 serviceId로 매핑하여 효율적인 부하 분산
+   - 멀티 프로세스 환경에서 API 이벤트의 효율적인 부하 분산
 - Eureka Server를 통한 서비스 디스커버리
    - 서비스 자동 등록 및 검색
    - 서비스 헬스 체크 및 실시간 상태 모니터링
 
-</details>
 
-<details>
-<summary><strong>Streaming Service CQRS</strong></summary>
+<strong>3.3 Streaming Service CQRS</strong>
 
-- CQRS (Command Query Responsibility Segregation) 패턴 적용
-   - 쓰기 작업과 읽기 작업의 책임 분리
+- CQRS 패턴 적용
+   - 쓰기 작업과 읽기 작업 분리
 - DB Main-Replica 구조 구현
-   - Main DB: 쓰기 작업 전담, 데이터 일관성 보장
-   - Replica DB: 읽기 작업 전담, 조회 성능 최적화
+   | 구분 | 역할 | 특징 |
+   |------|------------|-----------|
+   | Master DB| 쓰기 작업 | 데이터 일관성 보장 |
+   | Slave DB | 읽기 작업 | 조회 성능 최적화 |
    - DB 간 ROW단위 실시간 동기화로 데이터 정합성 유지
 - 트래픽 분산 및 가용성 향상
-   - 읽기 작업의 부하를 Replica DB로 분산
+   - 읽기 작업의 부하를 Slave DB로 분산
 
-</details>
 
 ### 4. 트러블 슈팅
 - [API Gateway 인증 처리 불가 문제](https://choidj94.notion.site/API-Gateway-784aece52e2b4f12a2ae534e7499d16b?pvs=4)
 - [MySQL replication Master-Slave 연결 해제 문제](https://choidj94.notion.site/MySQL-replication-Master-Slave-e91e1d634e6f41ce918278276ed72f6d?pvs=4)
-- [Chunk Read 동시성 제어 문제](https://choidj94.notion.site/Chunk-Read-0533861fe5584b0d811a81ae48d763bb?pvs=4)
   
