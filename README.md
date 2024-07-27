@@ -11,93 +11,37 @@
 ![Gradle](https://img.shields.io/badge/Gradle-8.8-02303A?style=flat-square&logo=gradle&logoColor=white)
 
 ## 📌 프로젝트 소개
-
-- 대량의 영상 시청기록에 대한 통계 및 정산 Batch 작업
-- 부하분산을 위한 MSA 구조
-
-## 🛠️ 기능
-1. User Service
-   <table>
-     <tr>
-       <th>기능 구분</th>
-       <th>기능</th>
-     </tr>
-     <tr>
-       <td rowspan="3">이용자 관리</td>
-       <td>회원가입</td>
-     </tr>
-     <tr>
-       <td>로그인</td>
-     </tr>
-     <tr>
-       <td>로그아웃</td>
-     </tr>
-   </table>
-
-2. Streaming Service
-   <table>
-     <tr>
-       <th>기능 구분</th>
-       <th>기능</th>
-     </tr>
-     <tr>
-       <td rowspan="3">동영상 재생 관리</td>
-       <td>동영상 재생</td>
-     </tr>
-     <tr>
-       <td>동영상 중단</td>
-     </tr>
-     <tr>
-       <td>동영상 재생 관리</td>
-     </tr>
-   </table>
-
-3. Adjustment Service
-   <table>
-     <tr>
-       <th>기능 구분</th>
-       <th>기능</th>
-     </tr>
-     <tr>
-       <td rowspan="2">동영상 통계 조회</td>
-       <td>일간/주간/월간 조회 수 Top 5</td>
-     </tr>
-     <tr>
-       <td>일간/주간/월간 재생 시간 Top 5</td>
-     </tr>
-     <tr>
-       <td rowspan="1">동영상 정산 조회</td>
-       <td>일간/주간/월간 정산 데이터 조회</td>
-     </tr>
-   </table>
+대량의 영상 시청기록에 대한 통계 및 정산 데이터를 작성하는 Batch 작업 프로젝트
 
 
 ## 🔥 프로젝트 목표
 1. 1억 건의 데이터에 대한 배치 작업을 2분대로 처리
 2. 멀티 스레드와 멀티 프로세스 환경에서 원활하게 서비스 동작
 
+## 🛠️ 기능
+1. **통계 및 정산 기능**
+   1. 멀티 스레드 : Batch 서버에서 **플랫폼 스레드를 활용**
+    
+3. **관련 API 기능**
+   1. 일간, 주간, 월간 조회수 및 재생시간 **Top5 조회**
+   2. 일간, 주간, 월간 사용자 **정산내역 조회** 
+    
+4.  **아키텍처 관련**
+      1. 도메인별 서버 분리
+      2. 로드밸런싱
+         1. 부하가 큰 일부 서비스에 대해 **다수 인스턴스 부하분산** 기능 구현
+         2. Spring Cloud Gateway &  LoadBalancer & Eureka 활용
+      4. CQRS
+         1. DB master(write) - slave(read) 구조 적용
+         2. master DB에서 **다른 2대의 slave DB로 MySQL replication**
+
 ## 🔍 아키텍처
 ![아키텍쳐](https://github.com/user-attachments/assets/3bc52d73-0f1f-4a58-941f-83889750dad0)
-
-
-## 📃 프로젝트 상세
-
-### 📘 API 문서
-
-[정산 프로젝트 API 문서](https://choidj94.notion.site/API-59e09f43283f4f94801751b3785e8b6e?pvs=4)
-
-### ERD
-
-![image](https://github.com/user-attachments/assets/09012cda-f299-4dd5-9316-81b2b6478285)
-
 
 ## 🏷️ 프로젝트 주요 경험
 
 ### 1. 배치 작업 성능 개선 (97% 향상)
 [📚 성능 테스트 과정 상세](https://choidj94.notion.site/Spring-Batch-aaca97f9203f4351baa60ef791f1a43b?pvs=4)
-
-<details>
-<summary><strong>Quick Overview</strong></summary>
 
 #### 📊 최종 성능
 **1억 건 기준 실측 결과: 1m 20sec 340ms**
@@ -116,7 +60,6 @@
 1. **1차 최적화**: JPA 제거, JDBC 직접 사용, 벌크 연산 적용, 데이터베이스 인덱싱
 2. **2차 최적화**: DB구조 변경 및 쿼리 최적화, Spring Batch 파티셔닝 도입, DB 파티션 프루닝 적용, Chunk 크기 최적화 
 
-</details>
 
 ### 2. 통계 및 정산 최적화
 - 플랫폼 스레드 활용
@@ -157,4 +100,14 @@
 ### 4. 트러블 슈팅
 - [API Gateway 인증 처리 불가 문제](https://choidj94.notion.site/API-Gateway-784aece52e2b4f12a2ae534e7499d16b?pvs=4)
 - [MySQL replication Master-Slave 연결 해제 문제](https://choidj94.notion.site/MySQL-replication-Master-Slave-e91e1d634e6f41ce918278276ed72f6d?pvs=4)
-  
+
+## 📃 프로젝트 상세
+
+### 📕 ERD
+
+![image](https://github.com/user-attachments/assets/09012cda-f299-4dd5-9316-81b2b6478285)
+
+### 📘 API 문서
+
+[정산 프로젝트 API 문서](https://choidj94.notion.site/API-59e09f43283f4f94801751b3785e8b6e?pvs=4)
+
