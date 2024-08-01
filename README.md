@@ -6,9 +6,12 @@
 
 ![Java](https://img.shields.io/badge/Java-21-007396?style=flat-square&logo=java&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.1-6DB33F?style=flat-square&logo=spring-boot&logoColor=white)
+![Spring Batch](https://img.shields.io/badge/Spring%20Batch-5.1.2-6DB33F?style=flat-square)
 ![Spring Cloud Gateway](https://img.shields.io/badge/Spring%20Cloud%20Gateway-4.1.4-6DB33F?style=flat-square&logo=spring&logoColor=white)
 ![Spring Cloud Eureka](https://img.shields.io/badge/Spring%20Cloud%20Eureka-4.1.2-6DB33F?style=flat-square&logo=spring&logoColor=white)
 ![Gradle](https://img.shields.io/badge/Gradle-8.8-02303A?style=flat-square&logo=gradle&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=MySQL&logoColor=white)
+
 
 ## 📌 프로젝트 소개
 대량의 영상 시청기록에 대한 통계 및 정산 데이터를 작성하는 Batch 작업 프로젝트
